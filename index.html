@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Look Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#F5F7F2; --surface:#FFFFFF; --ink:#16201A; --muted:#58645C; --rule:#D8DED6;
+  --accent:#1E7A4C; --accent-ink:#FFFFFF; --accent-soft:#DCEEE2;
+  --screen:#D95F30; --screen-soft:#F8DDD0; --free:#CFE3D6; --track:#E7ECE5;
+  --display:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F1512; --surface:#18201B; --ink:#E6ECE7; --muted:#9AA79F; --rule:#2B352F;
+    --accent:#4FBF85; --accent-ink:#0F1512; --accent-soft:#1D3327;
+    --screen:#F08A5D; --screen-soft:#45291D; --free:#23392C; --track:#25302A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F1512; --surface:#18201B; --ink:#E6ECE7; --muted:#9AA79F; --rule:#2B352F;
+  --accent:#4FBF85; --accent-ink:#0F1512; --accent-soft:#1D3327;
+  --screen:#F08A5D; --screen-soft:#45291D; --free:#23392C; --track:#25302A;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-inline:16px;padding-block:0 72px}
+.wrap{max-width:1080px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.02em}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--rule);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:700;transition:border-color .15s,background .15s,filter .15s,opacity .15s}
+button:hover:not(:disabled){border-color:var(--ink)}
+button:disabled{cursor:default;opacity:.5}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.primary:hover:not(:disabled){filter:brightness(1.07);border-color:var(--accent)}
+button.ghost{border-color:transparent;background:transparent;color:var(--muted);padding-inline:8px}
+button.ghost:hover:not(:disabled){border-color:transparent;color:var(--screen)}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+input[type=range]{cursor:pointer}
+.label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* header */
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:18px}
+.logo-btn{border:0;background:none;padding:0;font:800 24px var(--display);letter-spacing:-.02em;color:var(--ink)}
+.logo-btn span{display:inline-block;transform:translateY(-3px) rotate(-8deg);color:var(--accent)}
+.top-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.chip{font-size:13px;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--track);color:var(--muted);transition:background .2s,color .2s}
+.chip.synced{background:var(--accent-soft);color:var(--accent)}
+.chip.error{background:var(--screen-soft);color:var(--screen)}
+.nav-btn{padding:7px 12px;font-size:14px}
+
+/* views */
+.view{animation:rise .35s var(--ease)}
+@keyframes rise{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 18px;border-radius:99px;box-shadow:0 6px 24px rgb(0 0 0 / .18);transition:opacity .2s,transform .25s var(--ease);max-width:calc(100% - 32px);text-align:center;z-index:10}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- landing ---------- */
+.landing{display:grid;gap:64px;padding-block:24px 8px}
+.l-hero{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:40px;align-items:center}
+.l-hero h1{font-size:clamp(40px,6.4vw,76px)}
+.l-hero h1 em{font-style:normal;color:var(--screen)}
+.l-hero .lede{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:50ch;margin-top:18px}
+.l-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.l-cta button,.l-final button{padding:13px 22px;font-size:17px}
+.phone{justify-self:center;width:min(260px,100%);aspect-ratio:9/17;border-radius:36px;border:10px solid var(--ink);background:var(--surface);position:relative;overflow:hidden;display:grid;place-content:center;text-align:center;padding:20px}
+.phone::before{content:"";position:absolute;top:10px;left:50%;width:70px;height:18px;border-radius:99px;background:var(--ink);transform:translateX(-50%)}
+.phone b{display:block;font:800 60px/1 var(--display);color:var(--screen)}
+.phone span{font-size:14px;color:var(--muted)}
+.phone .pickups{margin-top:18px;font:800 22px var(--display);color:var(--ink)}
+.l-sec h2{font-size:clamp(28px,4.2vw,44px);max-width:22ch}
+.l-sec > p.sub{color:var(--muted);max-width:58ch;margin-top:10px;font-size:17px}
+.costs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}
+.cost{border-top:4px solid var(--screen);padding-top:14px;display:grid;gap:6px;align-content:start}
+.cost h3{font-size:22px}
+.cost p{color:var(--muted)}
+.calc2{margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.slide-row{display:flex;gap:14px;align-items:center}
+.slide-row input{flex:1;min-width:0;height:28px}
+#l-now{accent-color:var(--screen)} #l-goal{accent-color:var(--accent)}
+.slide-row output{font:800 30px var(--display);min-width:4.5ch;text-align:right}
+.res{font-size:17px}
+.res b{font-family:var(--display);font-size:22px}
+.card.win{background:var(--accent-soft);border-color:transparent}
+.big-quote{text-align:center;display:grid;gap:14px;justify-items:center}
+.big-quote blockquote{margin:0;font:800 clamp(28px,4.6vw,52px)/1.15 var(--display);max-width:22ch;text-wrap:balance}
+.big-quote cite{font-style:normal;color:var(--muted)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px;counter-reset:s;list-style:none;padding:0}
+.steps li{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:20px;display:grid;gap:6px;align-content:start;counter-increment:s}
+.steps li::before{content:counter(s);font:800 16px var(--display);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-content:center}
+.steps h3{font-size:20px}
+.steps p{color:var(--muted)}
+.l-final{background:var(--ink);color:var(--bg);border-radius:20px;padding:36px;display:grid;gap:14px;justify-items:start}
+.l-final h2{font-size:clamp(28px,4vw,42px)}
+.l-final p{opacity:.8;max-width:52ch}
+
+/* ---------- tracker ---------- */
+.greet{padding-block:8px 24px}
+.greet h1{font-size:clamp(32px,5vw,52px)}
+.greet p{color:var(--muted);margin-top:8px;font-size:17px;max-width:62ch}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:16px;padding:22px;display:grid;gap:16px;align-content:start}
+.card h2{font-size:22px}
+.c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:span 12}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+
+.goal-ctl{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 14px}
+.goal-ctl label{font-size:13px;font-weight:700;color:var(--muted)}
+.goal-ctl input{width:100%;min-width:0;accent-color:var(--accent)}
+.goal-ctl output{font:800 20px var(--display);min-width:4.5ch;text-align:right}
+
+.today{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+.ring{position:relative;width:150px;height:150px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--track);stroke-width:12}
+.ring .bar{fill:none;stroke:var(--accent);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .5s var(--ease),stroke .3s}
+.ring .bar.over{stroke:var(--screen)}
+.ring-text{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring-text b{font:800 28px/1 var(--display)}
+.ring-text span{font-size:13px;color:var(--muted);margin-top:4px}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+.days button{padding:6px 0;width:46px;font-size:13px;display:grid;line-height:1.2;font-weight:700}
+.days button small{font-weight:400;color:var(--muted);font-size:11px}
+.days button.logged{border-color:var(--accent)}
+.log-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.log-row label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.log-row input{width:84px;padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);font-weight:700;font-size:18px;transition:border-color .15s}
+.log-row input:focus{border-color:var(--accent);outline:none}
+.steppers{display:flex;gap:6px}
+.steppers button{padding:9px 10px;font-size:14px}
+.status{font-size:14px;color:var(--muted);min-height:1.4em}
+.status.good{color:var(--accent)} .status.bad{color:var(--screen)}
+
+.streak{display:flex;gap:16px;align-items:center}
+.streak b{font:800 56px/1 var(--display);color:var(--accent)}
+.streak p{color:var(--muted)}
+.dots{display:flex;gap:6px}
+.dots i{width:22px;height:22px;border-radius:50%;background:var(--track);display:block;transition:background .3s}
+.dots i.ok{background:var(--accent)} .dots i.over{background:var(--screen)}
+.challenge{border-top:1px solid var(--rule);padding-top:16px;display:grid;gap:10px}
+.challenge p.text{font:800 20px/1.25 var(--display)}
+.challenge label{display:flex;gap:10px;align-items:center;font-weight:700;cursor:pointer}
+.challenge input{width:20px;height:20px;accent-color:var(--accent)}
+
+.timer{font:800 clamp(56px,9vw,80px)/1 var(--display);text-align:center;letter-spacing:-.03em}
+.timer.running{color:var(--accent)}
+.timer-sub{text-align:center;color:var(--muted);font-size:14px}
+.presets,.timer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.focus-total{text-align:center;font-weight:700;color:var(--accent)}
+
+.chart-box{overflow-x:auto}
+.chart{width:100%;min-width:520px;height:auto;display:block}
+.chart .grid-l{stroke:var(--rule);stroke-width:1}
+.chart .goal-l{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:5 5}
+.chart .b-ok{fill:var(--accent)} .chart .b-over{fill:var(--screen)} .chart .b-none{fill:var(--track)} .chart .b-ex{fill:var(--rule)}
+.chart text{fill:var(--muted);font:12px var(--body)}
+.chart text.strong{fill:var(--ink);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--bg);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font:800 24px/1.1 var(--display)}
+.stat span{font-size:13px;color:var(--muted)}
+.example{font-size:13px;font-weight:700;color:var(--screen);background:var(--screen-soft);padding:3px 8px;border-radius:6px}
+
+.insight{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:center}
+.insight h2{font-size:clamp(24px,3.4vw,34px)}
+.insight h2 em{font-style:normal;color:var(--accent)}
+.insight p{color:var(--muted);margin-top:8px}
+.life{display:grid;grid-template-columns:repeat(20,1fr);gap:4px}
+.life i{aspect-ratio:1;border-radius:50%;background:var(--free);display:block}
+.life i.past{background:var(--rule)} .life i.on{background:var(--screen)} .life i.won{background:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+.tip{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tip .label{color:var(--accent-ink);opacity:.8}
+.tip p.text{font:800 22px/1.25 var(--display)}
+.tip p.more{opacity:.9}
+.quote{background:var(--screen-soft);border-color:transparent}
+.quote blockquote{margin:0;font:800 clamp(20px,2.4vw,24px)/1.3 var(--display);text-wrap:balance;transition:opacity .2s}
+.quote blockquote::before{content:"“";display:block;font-size:56px;line-height:.6;color:var(--screen);margin-bottom:6px}
+.quote cite{font-style:normal;color:var(--muted);font-size:15px}
+.quote-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+details.settings summary{cursor:pointer;font:800 20px var(--display);list-style:none}
+details.settings summary::-webkit-details-marker{display:none}
+details.settings summary::after{content:" +";color:var(--muted)}
+details.settings[open] summary::after{content:" −"}
+.set-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:14px}
+.set-row label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.set-row input{width:120px;padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);font-weight:700}
+.set-note{font-size:14px;color:var(--muted);margin-top:10px}
+
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+
+@media (max-width:880px){
+  .c7,.c5{grid-column:span 12}
+  .insight,.l-hero,.calc2{grid-template-columns:1fr}
+  .costs,.steps{grid-template-columns:1fr}
+  .phone{width:200px}
+}
+@media (max-width:520px){
+  .today{grid-template-columns:1fr;justify-items:center}
+  .today > div:last-child{width:100%}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card{padding:18px}
+  .life{grid-template-columns:repeat(10,1fr)}
+  .l-final{padding:24px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <button type="button" class="logo-btn" id="to-landing" aria-label="Look Up home">Look <span>up</span></button>
+    <div class="top-right">
+      <span id="today-date"></span>
+      <span class="chip" id="sync" role="status">Saved on this device</span>
+      <button type="button" class="nav-btn" id="nav-btn">Open tracker</button>
+    </div>
+  </header>
+
+  <!-- ============ TITLE PAGE ============ -->
+  <main class="landing view" id="landing">
+    <section class="l-hero">
+      <div>
+        <p class="label">A global habit</p>
+        <h1>The world spends <em>nearly 7 hours</em> a day on screens.</h1>
+        <p class="lede">That is the average time a person spends online each day, across every country. Phones and apps are designed to keep us scrolling, and most of that time slips away without us choosing it. Look Up helps you take some of it back, one day at a time.</p>
+        <div class="l-cta">
+          <button type="button" class="primary" data-go="app">Start tracking, it's free</button>
+          <button type="button" data-go="calc">See what it costs you</button>
+        </div>
+      </div>
+      <div class="phone" aria-hidden="true">
+        <div><b class="num">6h 40m</b><span>daily average online, worldwide</span><div class="pickups">≈ 100 days a year</div><span>awake and looking at a screen</span></div>
+      </div>
+    </section>
+
+    <section class="l-sec">
+      <h2>What too much screen time takes from you</h2>
+      <p class="sub">Screens are useful. The problem is the hours that go to endless feeds and autoplay, time we'd rarely choose to spend that way if we stopped to think.</p>
+      <div class="costs">
+        <div class="cost"><h3>Sleep</h3><p>Late-night scrolling is linked to falling asleep later and sleeping worse, especially for teenagers.</p></div>
+        <div class="cost"><h3>Focus</h3><p>Constant notifications break concentration. Getting back into deep work after an interruption takes time.</p></div>
+        <div class="cost"><h3>People</h3><p>Time on a phone often comes out of time with friends and family, even when we're in the same room.</p></div>
+      </div>
+    </section>
+
+    <section class="l-sec" id="calc">
+      <h2>Where you are, and where you want to be</h2>
+      <p class="sub">Move both sliders. Your target becomes your daily goal in the tracker, and you can change it any time.</p>
+      <div class="calc2">
+        <div class="card">
+          <label class="label" for="l-now">Your screen time now (per day)</label>
+          <div class="slide-row"><input type="range" id="l-now" min="0.5" max="12" step="0.25" value="5"><output id="l-now-o" for="l-now" class="num">5h</output></div>
+          <p class="res" id="l-now-res"></p>
+        </div>
+        <div class="card win">
+          <label class="label" for="l-goal">Your daily target</label>
+          <div class="slide-row"><input type="range" id="l-goal" min="0.5" max="12" step="0.25" value="3"><output id="l-goal-o" for="l-goal" class="num">3h</output></div>
+          <p class="res" id="l-goal-res"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="big-quote">
+      <blockquote id="l-quote"></blockquote>
+      <cite id="l-quote-by"></cite>
+    </section>
+
+    <section class="l-sec">
+      <h2>How Look Up works</h2>
+      <ol class="steps">
+        <li><h3>Log your day</h3><p>Copy your total from Screen Time or Digital Wellbeing. It takes ten seconds.</p></li>
+        <li><h3>Beat your target</h3><p>Stay under your goal to build a streak, and take on a small new challenge each day.</p></li>
+        <li><h3>Watch it add up</h3><p>Use the phone-down timer and see how many years of waking life you're winning back.</p></li>
+      </ol>
+    </section>
+
+    <section class="l-final">
+      <h2>Your first day starts now.</h2>
+      <p>Set a target, log yesterday, and see where you stand. Your log is private to you.</p>
+      <button type="button" class="primary" data-go="app" id="l-final-btn">Start with a 3h target</button>
+    </section>
+  </main>
+
+  <!-- ============ TRACKER ============ -->
+  <div id="app" class="view" hidden>
+    <div class="greet">
+      <h1 id="greet-h">Welcome back.</h1>
+      <p id="greet-p"></p>
+    </div>
+
+    <div class="grid">
+      <section class="card c7" aria-labelledby="log-h">
+        <div class="card-head"><h2 id="log-h">Log your screen time</h2></div>
+        <div class="goal-ctl">
+          <label for="goal-range">Daily target</label>
+          <input type="range" id="goal-range" min="0.5" max="12" step="0.25" value="3">
+          <output id="goal-lbl" for="goal-range" class="num">3h</output>
+        </div>
+        <div class="today">
+          <div class="ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="52"></circle><circle class="bar" id="ring-bar" cx="60" cy="60" r="52"></circle></svg>
+            <div class="ring-text"><b class="num" id="ring-val">–</b><span id="ring-cap">not logged</span></div>
+          </div>
+          <div style="display:grid;gap:14px">
+            <div>
+              <p class="label" style="margin-bottom:6px">Which day?</p>
+              <div class="days" id="days" role="group" aria-label="Choose a day to log"></div>
+            </div>
+            <form class="log-row" id="log-form" autocomplete="off">
+              <label for="in-h">Hours<input type="number" id="in-h" min="0" max="24" inputmode="numeric" value="0"></label>
+              <label for="in-m">Minutes<input type="number" id="in-m" min="0" max="59" step="5" inputmode="numeric" value="0"></label>
+              <div class="steppers">
+                <button type="button" id="minus" aria-label="Subtract 15 minutes">−15m</button>
+                <button type="button" id="plus" aria-label="Add 15 minutes">+15m</button>
+              </div>
+              <button type="submit" class="primary" id="save">Save</button>
+              <button type="button" class="ghost" id="clear" hidden>Clear</button>
+            </form>
+            <p class="status" id="log-status" role="status"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card c5" aria-labelledby="streak-h">
+        <p class="label" id="streak-h">Streak</p>
+        <div class="streak">
+          <b class="num" id="streak">0</b>
+          <p id="streak-p"></p>
+        </div>
+        <div class="dots" id="dots" aria-label="Last 7 days"></div>
+        <div class="challenge">
+          <p class="label">Today's challenge</p>
+          <p class="text" id="ch-text"></p>
+          <label for="ch-done"><input type="checkbox" id="ch-done"> Done it</label>
+        </div>
+      </section>
+
+      <section class="card c5" aria-labelledby="focus-h">
+        <div class="card-head"><h2 id="focus-h">Phone-down timer</h2><span class="label">Focus</span></div>
+        <div class="presets" role="group" aria-label="Timer length" id="presets">
+          <button type="button" data-min="15">15 min</button>
+          <button type="button" data-min="25" aria-pressed="true">25 min</button>
+          <button type="button" data-min="45">45 min</button>
+          <button type="button" data-min="60">60 min</button>
+        </div>
+        <div class="timer num" id="timer">25:00</div>
+        <p class="timer-sub" id="timer-sub">Put your phone face down, start the timer, and do one thing.</p>
+        <div class="timer-actions">
+          <button type="button" class="primary" id="t-start">Start</button>
+          <button type="button" id="t-stop" disabled>Give up</button>
+        </div>
+        <p class="focus-total num" id="focus-total">0 phone-free minutes today</p>
+      </section>
+
+      <section class="card c7" aria-labelledby="hist-h">
+        <div class="card-head"><h2 id="hist-h">Last 14 days</h2><span id="hist-badge"></span></div>
+        <div class="chart-box"><svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Bar chart of daily screen time for the last 14 days"></svg></div>
+        <div class="stats">
+          <div class="stat"><b class="num" id="st-avg">–</b><span>7-day average</span></div>
+          <div class="stat"><b class="num" id="st-change">–</b><span>vs. when you started</span></div>
+          <div class="stat"><b class="num" id="st-best">–</b><span>best day this fortnight</span></div>
+          <div class="stat"><b class="num" id="st-focus">–</b><span>phone-free minutes, 7 days</span></div>
+        </div>
+      </section>
+
+      <section class="card c12 insight" aria-labelledby="ins-h">
+        <div>
+          <p class="label">The long view</p>
+          <h2 id="ins-h" style="margin-top:8px">At your current pace, you're winning back <em id="ins-won">0 years</em> of waking life.</h2>
+          <p id="ins-p"></p>
+        </div>
+        <div>
+          <div class="life" id="life" aria-hidden="true"></div>
+          <div class="legend">
+            <span style="--c:var(--rule)">Lived</span>
+            <span style="--c:var(--screen)">Still on screens</span>
+            <span style="--c:var(--accent)">Won back</span>
+            <span style="--c:var(--free)">Everything else</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card c7 tip" aria-labelledby="tip-h">
+        <p class="label" id="tip-h">Tip of the day</p>
+        <p class="text" id="tip-text"></p>
+        <p class="more" id="tip-more"></p>
+      </section>
+
+      <section class="card c5 quote" aria-label="Quote">
+        <blockquote id="q-text"></blockquote>
+        <div class="quote-foot">
+          <cite id="q-by"></cite>
+          <button type="button" id="q-next">Another quote</button>
+        </div>
+      </section>
+
+      <section class="card c12">
+        <details class="settings" id="settings">
+          <summary>Your goal and starting point</summary>
+          <form class="set-row" id="set-form">
+            <label for="set-goal">Daily goal (hours)<input type="number" id="set-goal" min="0.5" max="12" step="0.25" value="3"></label>
+            <label for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="0.25" value="5"></label>
+            <label for="set-age">Your age<input type="number" id="set-age" min="5" max="79" value="20"></label>
+            <button type="submit" class="primary">Save settings</button>
+          </form>
+          <p class="set-note" id="set-note">Count leisure screen time only, not work or school. Your starting point is used to show how much time you've won back.</p>
+        </details>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    Look Up is a free habit tracker for cutting back on screen time. Your log is private to you. Figures are estimates for motivation, not medical advice.
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const pad = n => String(n).padStart(2, '0');
+  const keyOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const hm = m => { m = Math.round(m); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? h + 'h ' + r + 'm' : h + 'h') : r + 'm'; };
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const safeGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
+  const safeSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e){} };
+
+  // ---------- content ----------
+  const CHALLENGES = [
+    'Eat one meal with no phone at the table.',
+    'Keep your phone in another room for the first 30 minutes after you wake up.',
+    'Take a 20-minute walk and leave your phone at home.',
+    'Turn off notifications for one app you don\'t need them from.',
+    'Read 10 pages of a paper book.',
+    'Call someone you\'d normally just text.',
+    'No screens in the last hour before bed.',
+    'Delete one app you haven\'t opened this month.',
+    'Switch your phone to grayscale for the whole day.',
+    'Do one chore with no music, video or podcast on.',
+    'Write down three good things about today, on paper.',
+    'Spend 5 minutes outside just looking around.',
+    'Do one full focus session with your phone out of reach.',
+    'Invite a friend to do a screen-free hour with you.'
+  ];
+  const TIPS = [
+    ['Charge your phone outside the bedroom.', 'A cheap alarm clock means the first and last minutes of your day stay yours.'],
+    ['Turn off notifications from apps, not people.', 'Keep messages from friends and family. Silence games, shopping and social feeds.'],
+    ['Move social apps off your home screen.', 'One extra swipe is often enough to break the automatic habit of opening them.'],
+    ['Set a daily app limit.', 'Screen Time on iPhone and Digital Wellbeing on Android can lock an app after a time you choose.'],
+    ['Try grayscale mode.', 'A black-and-white screen is far less tempting to keep scrolling.'],
+    ['Replace, don\'t just remove.', 'Pick what you\'ll do instead before you put the phone down: a book, a walk, a call.'],
+    ['Log out of one app on your phone.', 'Having to type a password gives you a moment to decide if you really want to open it.'],
+    ['Make the first hour of your day screen-free.', 'People who start with their phone often find it harder to stop later.'],
+    ['Use a real watch.', 'Checking the time is one of the most common reasons people unlock their phone.'],
+    ['Leave your phone behind on short trips.', 'A walk to the shop is a good way to get used to not having it.']
+  ];
+  const QUOTES = [
+    ['How we spend our days is, of course, how we spend our lives.', 'Annie Dillard'],
+    ['Almost everything will work again if you unplug it for a few minutes, including you.', 'Anne Lamott'],
+    ['Lost time is never found again.', 'Benjamin Franklin'],
+    ['Time is what we want most, but what we use worst.', 'William Penn'],
+    ['You will never find time for anything. If you want time you must make it.', 'Charles Buxton'],
+    ['Wherever you are, be all there.', 'Jim Elliot'],
+    ['We are what we repeatedly do.', 'Will Durant, on Aristotle'],
+    ['Motivation is what gets you started. Habit is what keeps you going.', 'Jim Ryun'],
+    ['The key is not to prioritize what\'s on your schedule, but to schedule your priorities.', 'Stephen Covey']
+  ];
+
+  // ---------- dates (refreshed so the page rolls over at midnight) ----------
+  let now, todayKey, dayIndex;
+  function refreshDate(){
+    now = new Date();
+    const k = keyOf(now), changed = k !== todayKey;
+    todayKey = k;
+    dayIndex = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 864e5);
+    return changed;
+  }
+  refreshDate();
+  const lastN = n => { const out = []; for (let i = n - 1; i >= 0; i--) out.push(keyOf(addDays(now, -i))); return out; };
+  // mornings default to yesterday, since today isn't finished yet
+  let selKey = keyOf(addDays(now, now.getHours() < 17 ? -1 : 0));
+
+  // ---------- state ----------
+  const S = { settings: { goal: 180, baseline: 300, age: 20 }, days: {} }; // minutes
+  const LS_KEY = 'lookup-v2', TIMER_KEY = 'lookup-timer';
+  const entry = k => S.days[k] || {};
+  const logged = k => typeof entry(k).mins === 'number';
+
+  function loadLocal(){
+    try {
+      const o = JSON.parse(safeGet(LS_KEY) || 'null');
+      if (o){ Object.assign(S.settings, o.settings || {}); S.days = o.days || {}; }
+    } catch(e){}
+  }
+  const saveLocal = () => safeSet(LS_KEY, JSON.stringify(S));
+
+  // ---------- toast ----------
+  let toastT = 0;
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ---------- sync (account storage when available, this browser otherwise) ----------
+  let mode = 'local', db = null, uid = null, pending = 0;
+  function setSync(state){
+    const c = $('sync');
+    const map = {
+      local:  ['Saved on this device', ''],
+      saving: ['Saving…', ''],
+      synced: ['Synced to your account', 'synced'],
+      error:  ['Couldn\'t sync. Saved on this device', 'error']
+    };
+    c.textContent = map[state][0];
+    c.className = 'chip' + (map[state][1] ? ' ' + map[state][1] : '');
+  }
+  const chains = {};
+  function write(path, body){
+    pending++; setSync('saving');
+    const run = () => db.doc(path).set(body);
+    chains[path] = (chains[path] || Promise.resolve()).then(run, run);
+    chains[path].then(() => {
+      if (--pending === 0 && mode === 'db') setSync('synced');
+    }, err => {
+      pending--;
+      if (err && err.code === 'invalid_argument'){ mode = 'local'; setSync('local'); }
+      else setSync('error');
+    });
+  }
+  function monthDoc(month){
+    const days = {};
+    Object.keys(S.days).forEach(k => { if (k.slice(0, 7) === month) days[k] = S.days[k]; });
+    return { days };
+  }
+  function persistDay(k){
+    saveLocal();
+    if (mode === 'db') write('data/users/' + uid + '/m-' + k.slice(0, 7), monthDoc(k.slice(0, 7)));
+  }
+  function persistSettings(){
+    saveLocal();
+    if (mode === 'db') write('data/users/' + uid + '/settings', { ...S.settings });
+  }
+
+  async function connect(){
+    if (!window.claude || !window.claude.use) return;
+    try {
+      const [d, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      if (!d || !user) return;
+      const id = await user.id();
+      if (!id) return;
+      db = d; uid = id;
+      let first = true;
+      db.collection('data/users/' + uid).onSnapshot(snap => {
+        if (first){
+          first = false; mode = 'db'; setSync('synced');
+          if (snap.empty){
+            // first visit on this account: carry over anything logged in this browser
+            if (Object.keys(S.days).length){
+              persistSettings();
+              [...new Set(Object.keys(S.days).map(k => k.slice(0, 7)))].forEach(m => persistDay(m + '-01'));
+            }
+            return;
+          }
+          S.days = {};
+        }
+        snap.docs.forEach(doc => {
+          const data = doc.data() || {};
+          if (doc.id === 'settings') Object.assign(S.settings, data);
+          else if (doc.id.startsWith('m-')){
+            const month = doc.id.slice(2);
+            Object.keys(S.days).forEach(k => { if (k.slice(0, 7) === month) delete S.days[k]; });
+            Object.assign(S.days, data.days || {});
+          }
+        });
+        saveLocal(); syncInputs(); render();
+      }, () => { mode = 'local'; setSync('error'); });
+    } catch(e){}
+  }
+
+  // ---------- derived ----------
+  function streak(){
+    let d = logged(todayKey) ? now : addDays(now, -1), n = 0;
+    for (;;){
+      const k = keyOf(d);
+      if (!logged(k) || entry(k).mins > S.settings.goal) break;
+      n++; d = addDays(d, -1);
+    }
+    return n;
+  }
+  function avg7(){
+    const ks = lastN(7).filter(logged);
+    return ks.length ? ks.reduce((a, k) => a + entry(k).mins, 0) / ks.length : null;
+  }
+  const lifeLeft = () => 80 - clamp(Math.round(S.settings.age), 5, 79);
+  const yearsAt = m => lifeLeft() * (m / 60) / 16; // share of 16 waking hours, to age 80
+  const dayLabel = k => k === todayKey ? 'today' : k === keyOf(addDays(now, -1)) ? 'yesterday' : new Date(k + 'T12:00').toLocaleDateString(undefined, { weekday: 'long' });
+
+  // ---------- render: landing ----------
+  function renderLanding(){
+    const b = S.settings.baseline, g = S.settings.goal;
+    $('l-now-o').textContent = hm(b); $('l-goal-o').textContent = hm(g);
+    $('l-now-res').innerHTML = 'That\'s <b class="num">' + Math.round(b * 365 / 1440) + ' days</b> a year, and about <b class="num">' + yearsAt(b).toFixed(1) + ' years</b> of your waking life by age 80.';
+    const saved = b - g;
+    $('l-goal-res').innerHTML = saved > 0
+      ? 'You\'d win back <b class="num">' + Math.round(saved * 365 / 1440) + ' days</b> a year, and about <b class="num">' + yearsAt(saved).toFixed(1) + ' years</b> of waking life.'
+      : 'Your target is at or above where you are now. Try setting it a little lower.';
+    $('l-final-btn').textContent = 'Start with a ' + hm(g) + ' target';
+    const lq = QUOTES[(dayIndex + 1) % QUOTES.length];
+    $('l-quote').textContent = lq[0]; $('l-quote-by').textContent = lq[1];
+  }
+
+  // ---------- render: tracker ----------
+  function renderHeader(){
+    $('today-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+    const h = now.getHours();
+    const part = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    $('greet-h').textContent = Object.keys(S.days).length ? part + '. Keep it going.' : part + '. Let\'s see where your time goes.';
+    $('greet-p').textContent = h < 17
+      ? 'Log yesterday\'s total from your phone\'s Screen Time or Digital Wellbeing, then take on today\'s challenge.'
+      : 'Log today\'s total from Screen Time or Digital Wellbeing before bed, and check off today\'s challenge.';
+  }
+
+  function renderDays(){
+    const box = $('days'); box.innerHTML = '';
+    lastN(7).forEach(k => {
+      const d = new Date(k + 'T12:00');
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(k === selKey));
+      if (logged(k)) b.classList.add('logged');
+      const top = document.createElement('span'), sub = document.createElement('small');
+      top.textContent = k === todayKey ? 'Today' : WD[d.getDay()];
+      sub.textContent = logged(k) ? hm(entry(k).mins) : d.getDate();
+      b.append(top, sub);
+      b.setAttribute('aria-label', top.textContent + ' ' + d.getDate() + (logged(k) ? ', logged ' + hm(entry(k).mins) : ', not logged'));
+      b.addEventListener('click', () => {
+        if (k === selKey) return;
+        selKey = k; logDirty = false; syncLogInputs(); render();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function renderRing(){
+    const C = 2 * Math.PI * 52, bar = $('ring-bar');
+    bar.style.strokeDasharray = C;
+    const g = S.settings.goal;
+    // preview what's typed before it's saved, so the ring responds as you edit
+    const m = logDirty ? readMins() : (logged(selKey) ? entry(selKey).mins : null);
+    const st = $('log-status');
+    $('clear').hidden = !logged(selKey);
+    if (m == null){
+      bar.style.strokeDashoffset = C; bar.classList.remove('over');
+      $('ring-val').textContent = '–'; $('ring-cap').textContent = 'not logged';
+      st.textContent = 'Enter ' + dayLabel(selKey) + '\'s total and press Save.'; st.className = 'status';
+      return;
+    }
+    const over = m > g;
+    bar.style.strokeDashoffset = C * (1 - Math.min(m / g, 1));
+    bar.classList.toggle('over', over);
+    $('ring-val').textContent = hm(m);
+    $('ring-cap').textContent = over ? hm(m - g) + ' over' : m === g ? 'right on target' : hm(g - m) + ' under';
+    if (logDirty){ st.textContent = 'Not saved yet. Press Save or Enter.'; st.className = 'status'; }
+    else {
+      st.textContent = over ? 'Over your goal ' + dayLabel(selKey) + '. Tomorrow is a fresh start.' : 'Under your goal ' + dayLabel(selKey) + '. Nice work.';
+      st.className = 'status ' + (over ? 'bad' : 'good');
+    }
+  }
+
+  function renderStreak(){
+    const n = streak();
+    $('streak').textContent = n;
+    $('streak-p').textContent = n === 0
+      ? 'days in a row under your goal. Log a day under ' + hm(S.settings.goal) + ' to start one.'
+      : (n === 1 ? 'day' : 'days') + ' in a row under your goal. Keep it going.';
+    const dots = $('dots'); dots.innerHTML = '';
+    lastN(7).forEach(k => {
+      const i = document.createElement('i');
+      if (logged(k)) i.className = entry(k).mins > S.settings.goal ? 'over' : 'ok';
+      i.title = dayLabel(k) + (logged(k) ? ': ' + hm(entry(k).mins) : ': not logged');
+      dots.appendChild(i);
+    });
+    $('ch-text').textContent = CHALLENGES[dayIndex % CHALLENGES.length];
+    $('ch-done').checked = !!entry(todayKey).done;
+  }
+
+  function renderChart(){
+    const W = 640, H = 220, L = 34, R = 8, T = 12, B = 40;
+    const keys = lastN(14), real = keys.some(logged);
+    const example = [310,290,335,270,260,300,240,250,230,215,245,200,190,185];
+    const vals = keys.map((k, i) => real ? (logged(k) ? entry(k).mins : null) : example[i]);
+    const maxH = Math.max(4, Math.ceil(Math.max(S.settings.goal, ...vals.filter(v => v != null)) / 60) + 1);
+    const y = m => T + (H - T - B) * (1 - m / (maxH * 60));
+    const bw = (W - L - R) / keys.length, step = maxH > 8 ? 4 : 2;
+    let out = '';
+    for (let h = 0; h <= maxH; h += step){
+      out += '<line class="grid-l" x1="' + L + '" x2="' + (W - R) + '" y1="' + y(h * 60) + '" y2="' + y(h * 60) + '"/>';
+      out += '<text x="' + (L - 6) + '" y="' + (y(h * 60) + 4) + '" text-anchor="end">' + h + 'h</text>';
+    }
+    keys.forEach((k, i) => {
+      const v = vals[i], x = L + i * bw + bw * .18, w = bw * .64, d = new Date(k + 'T12:00');
+      if (v == null) out += '<rect class="b-none" x="' + x + '" y="' + (y(0) - 3) + '" width="' + w + '" height="3" rx="1.5"/>';
+      else {
+        const cls = !real ? 'b-ex' : v > S.settings.goal ? 'b-over' : 'b-ok';
+        out += '<rect class="' + cls + '" x="' + x + '" y="' + y(v) + '" width="' + w + '" height="' + (y(0) - y(v)) + '" rx="4"><title>' + k + ': ' + hm(v) + '</title></rect>';
+      }
+      const cx = x + w / 2, t = k === todayKey ? ' class="strong"' : '';
+      out += '<text' + t + ' x="' + cx + '" y="' + (H - 22) + '" text-anchor="middle">' + WD[d.getDay()][0] + '</text>';
+      out += '<text' + t + ' x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle">' + d.getDate() + '</text>';
+    });
+    const gy = y(S.settings.goal);
+    out += '<line class="goal-l" x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '"/>';
+    out += '<text x="' + (W - R) + '" y="' + (gy - 6) + '" text-anchor="end" class="strong">goal ' + hm(S.settings.goal) + '</text>';
+    $('chart').innerHTML = out;
+    $('hist-badge').innerHTML = real ? '' : '<span class="example">Example data. Log a day to see yours.</span>';
+
+    const a = avg7();
+    $('st-avg').textContent = a == null ? '–' : hm(a);
+    $('st-change').textContent = a == null ? '–' : (a <= S.settings.baseline ? '−' : '+') + Math.round(Math.abs(1 - a / S.settings.baseline) * 100) + '%';
+    const lk = keys.filter(logged);
+    $('st-best').textContent = lk.length ? hm(Math.min(...lk.map(k => entry(k).mins))) : '–';
+    $('st-focus').textContent = lastN(7).reduce((s, k) => s + (entry(k).focus || 0), 0);
+  }
+
+  function renderInsight(){
+    const age = clamp(Math.round(S.settings.age), 5, 79), a = avg7();
+    const onYrs = yearsAt(a == null ? S.settings.baseline : a), baseYrs = yearsAt(S.settings.baseline);
+    const won = Math.max(0, baseYrs - onYrs);
+    $('ins-won').textContent = won.toFixed(1) + ' years';
+    $('ins-p').textContent = a == null
+      ? 'Log a few days and this updates. At your starting point of ' + hm(S.settings.baseline) + ' a day, about ' + baseYrs.toFixed(1) + ' of your remaining waking years would go to screens.'
+      : 'Your 7-day average is ' + hm(a) + ' a day, compared with ' + hm(S.settings.baseline) + ' before. Carried through to age 80, that is ' + onYrs.toFixed(1) + ' waking years on screens instead of ' + baseYrs.toFixed(1) + '.';
+    const life = $('life'), onDots = Math.round(onYrs), wonDots = Math.round(won);
+    life.innerHTML = '';
+    for (let yr = 0; yr < 80; yr++){
+      const i = document.createElement('i');
+      if (yr < age) i.className = 'past';
+      else if (yr < age + onDots) i.className = 'on';
+      else if (yr < age + onDots + wonDots) i.className = 'won';
+      life.appendChild(i);
+    }
+  }
+
+  let qOff = 0;
+  function renderDaily(){
+    const t = TIPS[dayIndex % TIPS.length];
+    $('tip-text').textContent = t[0]; $('tip-more').textContent = t[1];
+    const q = QUOTES[(dayIndex + qOff) % QUOTES.length];
+    $('q-text').textContent = q[0]; $('q-by').textContent = q[1];
+    const f = entry(todayKey).focus || 0;
+    $('focus-total').textContent = f + ' phone-free minute' + (f === 1 ? '' : 's') + ' today';
+  }
+
+  function render(){
+    $('goal-lbl').textContent = hm(S.settings.goal);
+    renderLanding(); renderHeader(); renderDays(); renderRing(); renderStreak(); renderChart(); renderInsight(); renderDaily();
+  }
+
+  // ---------- log form ----------
+  let logDirty = false;
+  const readMins = () => clamp((parseInt($('in-h').value, 10) || 0) * 60 + (parseInt($('in-m').value, 10) || 0), 0, 1440);
+  function writeMins(m){ m = clamp(m, 0, 1440); $('in-h').value = Math.floor(m / 60); $('in-m').value = m % 60; }
+  function syncLogInputs(){
+    writeMins(logged(selKey) ? entry(selKey).mins : 0);
+    updateSaveBtn();
+  }
+  function syncSettingInputs(){
+    const active = document.activeElement;
+    const set = (id, v) => { if ($(id) !== active) $(id).value = v; };
+    set('set-goal', S.settings.goal / 60); set('set-base', S.settings.baseline / 60); set('set-age', S.settings.age);
+    set('goal-range', S.settings.goal / 60); set('l-goal', S.settings.goal / 60); set('l-now', S.settings.baseline / 60);
+  }
+  // never overwrite what someone is typing when data arrives from another device
+  function syncInputs(){ if (!logDirty) syncLogInputs(); syncSettingInputs(); }
+  function updateSaveBtn(){
+    const same = logged(selKey) && readMins() === entry(selKey).mins;
+    $('save').disabled = same;
+    $('save').textContent = same ? 'Saved' : 'Save';
+  }
+  function markDirty(){ logDirty = true; updateSaveBtn(); renderRing(); }
+  ['in-h','in-m'].forEach(id => $(id).addEventListener('input', markDirty));
+  $('in-m').addEventListener('change', () => writeMins(readMins())); // 90 min becomes 1h 30m
+  $('in-h').addEventListener('change', () => writeMins(readMins()));
+  $('plus').addEventListener('click', () => { writeMins(readMins() + 15); markDirty(); });
+  $('minus').addEventListener('click', () => { writeMins(readMins() - 15); markDirty(); });
+  $('log-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const m = readMins();
+    S.days[selKey] = { ...entry(selKey), mins: m };
+    logDirty = false; persistDay(selKey); render(); updateSaveBtn();
+    toast(m > S.settings.goal ? 'Saved ' + hm(m) + ' for ' + dayLabel(selKey) + '.' : 'Saved. ' + hm(S.settings.goal - m) + ' under your goal.');
+  });
+  $('clear').addEventListener('click', () => {
+    const rest = { ...entry(selKey) }; delete rest.mins;
+    S.days[selKey] = rest;
+    logDirty = false; persistDay(selKey); syncLogInputs(); render();
+    toast('Cleared ' + dayLabel(selKey) + '.');
+  });
+  $('ch-done').addEventListener('change', e => {
+    S.days[todayKey] = { ...entry(todayKey), done: e.target.checked };
+    persistDay(todayKey); renderStreak();
+    if (e.target.checked) toast('Challenge done. Nice one.');
+  });
+
+  // ---------- target sliders (three controls, one value) ----------
+  function bindSlider(el, field){
+    el.addEventListener('input', () => {
+      S.settings[field] = Math.round(parseFloat(el.value) * 60);
+      syncSettingInputs(); render(); updateSaveBtn();
+    });
+    el.addEventListener('change', persistSettings); // save once, when the slider is released
+  }
+  bindSlider($('goal-range'), 'goal');
+  bindSlider($('l-goal'), 'goal');
+  bindSlider($('l-now'), 'baseline');
+
+  $('set-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const g = parseFloat($('set-goal').value), b = parseFloat($('set-base').value), a = parseInt($('set-age').value, 10);
+    if (!(g >= 0.5 && g <= 12) || !(b >= 0.5 && b <= 12) || !(a >= 5 && a <= 79)){
+      $('set-note').textContent = 'Enter a goal and starting point between 0.5 and 12 hours, and an age from 5 to 79.';
+      return;
+    }
+    S.settings = { goal: Math.round(g * 60), baseline: Math.round(b * 60), age: a };
+    persistSettings(); syncSettingInputs(); render();
+    $('set-note').textContent = 'Count leisure screen time only, not work or school.';
+    toast('Settings saved. Goal is ' + hm(S.settings.goal) + ' a day.');
+  });
+
+  $('q-next').addEventListener('click', () => {
+    qOff = (qOff + 1) % QUOTES.length;
+    const bq = $('q-text');
+    if (reduceMotion){ renderDaily(); return; }
+    bq.style.opacity = 0;
+    setTimeout(() => { renderDaily(); bq.style.opacity = 1; }, 180);
+  });
+
+  // ---------- focus timer (survives a reload) ----------
+  let len = 25, endAt = 0, tick = 0;
+  const fmtT = s => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+  function setPreset(min){
+    len = min;
+    document.querySelectorAll('#presets button').forEach(x => x.setAttribute('aria-pressed', String(Number(x.dataset.min) === min)));
+    $('timer').textContent = fmtT(len * 60);
+  }
+  document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => { if (!endAt) setPreset(Number(b.dataset.min)); }));
+  function timerUI(running){
+    $('t-start').disabled = running; $('t-start').textContent = running ? 'Running' : 'Start';
+    $('t-stop').disabled = !running;
+    $('timer').classList.toggle('running', running);
+    document.querySelectorAll('#presets button').forEach(b => b.disabled = running);
+  }
+  function finishTimer(credit){
+    clearInterval(tick); endAt = 0; safeSet(TIMER_KEY, null);
+    document.title = 'Look Up'; timerUI(false); $('timer').textContent = fmtT(len * 60);
+    if (credit){
+      S.days[todayKey] = { ...entry(todayKey), focus: (entry(todayKey).focus || 0) + len };
+      persistDay(todayKey); render();
+      $('timer-sub').textContent = 'Done. ' + len + ' phone-free minutes added to today.';
+      toast(len + ' phone-free minutes. Well done.');
+    } else $('timer-sub').textContent = 'Stopped early. Nothing added. Try a shorter session next time.';
+  }
+  function runTimer(){
+    timerUI(true);
+    $('timer-sub').textContent = 'Phone down. This counts once the timer reaches zero.';
+    const step = () => {
+      const left = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+      $('timer').textContent = fmtT(left);
+      document.title = fmtT(left) + ' · Look Up';
+      if (!left) finishTimer(true);
+    };
+    clearInterval(tick); step(); tick = setInterval(step, 500);
+  }
+  $('t-start').addEventListener('click', () => {
+    if (endAt) return;
+    endAt = Date.now() + len * 60000;
+    safeSet(TIMER_KEY, JSON.stringify({ endAt, len }));
+    runTimer();
+  });
+  $('t-stop').addEventListener('click', () => { if (endAt) finishTimer(false); });
+  function resumeTimer(){
+    try {
+      const t = JSON.parse(safeGet(TIMER_KEY) || 'null');
+      if (!t) return;
+      setPreset(t.len);
+      endAt = t.endAt;
+      if (Date.now() >= endAt) finishTimer(true); else runTimer();
+    } catch(e){}
+  }
+
+  // ---------- views ----------
+  function showView(v){
+    const to = $(v === 'app' ? 'app' : 'landing'), from = $(v === 'app' ? 'landing' : 'app');
+    from.hidden = true; to.hidden = false;
+    // restart the entrance animation
+    to.classList.remove('view'); void to.offsetWidth; to.classList.add('view');
+    $('nav-btn').textContent = v === 'app' ? 'About' : 'Open tracker';
+    $('nav-btn').dataset.to = v === 'app' ? 'landing' : 'app';
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+  $('nav-btn').addEventListener('click', e => showView(e.currentTarget.dataset.to));
+  $('to-landing').addEventListener('click', () => showView('landing'));
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.go === 'calc') $('calc').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    else showView('app');
+  }));
+
+  // ---------- midnight rollover ----------
+  function checkDay(){ if (refreshDate()){ if (!logDirty) syncLogInputs(); render(); } }
+  setInterval(checkDay, 60000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDay(); });
+
+  // ---------- boot ----------
+  loadLocal(); setSync('local'); syncInputs(); render(); resumeTimer();
+  showView('landing'); // everyone starts on the title page
+  connect();
+})();
+</script>
+
+</body>
+</html>
