@@ -130,7 +130,7 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .calc2{margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 .slide-row{display:flex;gap:14px;align-items:center}
 .slide-row input{flex:1;min-width:0;height:28px}
-#l-now{accent-color:var(--screen)} #l-goal,#life-goal{accent-color:var(--accent)}
+#l-now{accent-color:var(--screen)} #l-goal,#life-goal{accent-color:var(--accent)} #life-age{accent-color:var(--accent)}
 .slide-row output{font:800 30px var(--display);min-width:4.5ch;text-align:right}
 .res{font-size:17px}
 .res b{font-family:var(--display);font-size:22px}
@@ -332,6 +332,13 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .life i.now{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 .life-info{min-height:1.5em;font-weight:700;margin-top:10px}
 .life-note{font-size:13px;color:var(--muted)}
+.age-box{border:2px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:14px 16px;display:grid;gap:8px;transition:border-color .3s,background .3s}
+.age-box.set{border-color:var(--rule);background:var(--bg)}
+.age-box label{font:800 18px var(--display)}
+.age-box output{font:800 30px var(--display);min-width:3ch;text-align:right}
+.age-hint{font-size:14px;color:var(--ink)}
+.age-box.set .age-hint{color:var(--muted)}
+.step{display:inline-grid;place-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font:800 12px var(--body);margin-right:6px;vertical-align:2px;letter-spacing:0}
 .set-note{font-size:14px;color:var(--muted)}
 .data-acts{display:flex;gap:8px;flex-wrap:wrap}
 .data-box textarea{width:100%;min-height:90px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);color:var(--ink);font:12px ui-monospace,Menlo,monospace;padding:10px}
@@ -713,12 +720,22 @@ footer strong{color:var(--ink)}
         <div class="life-wrap">
           <div style="display:grid;gap:14px">
             <p class="label">Your time, one dot per year</p>
+            <div class="age-box" id="age-box">
+              <label for="life-age"><span class="step">1</span> Start with your age</label>
+              <div class="slide-row">
+                <input type="range" id="life-age" min="5" max="79" step="1" value="20">
+                <output id="life-age-o" for="life-age" class="num">20</output>
+              </div>
+              <p class="age-hint" id="age-hint">This is an example based on age 20. Move the slider to make it yours.</p>
+            </div>
+            <p class="label"><span class="step">2</span> Your daily target</p>
             <h2 id="life-h">At this target, you could reclaim about <em id="life-days">0 days</em> of waking life every year.</h2>
             <div class="goal-ctl">
               <label for="life-goal">Target</label>
               <input type="range" id="life-goal" min="0.5" max="12" step="0.25" value="3">
               <output id="life-goal-o" for="life-goal" class="num">3h</output>
             </div>
+
             <div class="life-keys num">
               <div class="lk" style="--c:var(--rule)"><i></i><b id="lk-lived">20</b><span>years lived</span></div>
               <div class="lk" style="--c:var(--free)"><i></i><b id="lk-left">60</b><span>years ahead</span></div>
@@ -1618,6 +1635,12 @@ footer strong{color:var(--ink)}
     const perYearDays = Math.max(0, S.settings.baseline - S.settings.goal) * 365 / (16 * 60);
     $('life-days').textContent = Math.round(perYearDays) + (Math.round(perYearDays) === 1 ? ' day' : ' days');
     $('life-goal-o').textContent = hm(S.settings.goal);
+    $('life-age-o').textContent = clamp(Math.round(S.settings.age), 5, 79);
+    const ageSet = !!S.settings.ageSet || S.settings.age !== 20; // older saves set age without the flag
+    $('age-box').classList.toggle('set', ageSet);
+    $('age-hint').textContent = ageSet
+      ? 'Your age. You can change it any time.'
+      : 'This is an example based on age 20. Move the slider to make it yours.';
     $('lk-lived').textContent = c.age; $('lk-left').textContent = c.left;
     $('lk-screen').textContent = c.onY.toFixed(1); $('lk-won').textContent = c.wonY.toFixed(1);
     $('life-base').textContent = hm(S.settings.baseline);
@@ -1644,6 +1667,7 @@ footer strong{color:var(--ink)}
     const set = (id, v) => { if ($(id) !== active) $(id).value = v; };
     set('set-goal', S.settings.goal / 60); set('set-base', S.settings.baseline / 60); set('set-age', S.settings.age);
     set('goal-range', S.settings.goal / 60); set('l-goal', S.settings.goal / 60); set('life-goal', S.settings.goal / 60); set('l-now', S.settings.baseline / 60);
+    set('life-age', S.settings.age);
     $('wd-on').checked = !!S.settings.windOn; set('wd-start', S.settings.windStart); set('wd-end', S.settings.windEnd);
   }
   function syncInputs(){ if (!logDirty) syncLogInputs(); syncSettingInputs(); }
@@ -1683,6 +1707,8 @@ footer strong{color:var(--ink)}
     el.addEventListener('change', persistSettings);
   }
   bindSlider($('goal-range'), 'goal'); bindSlider($('l-goal'), 'goal'); bindSlider($('life-goal'), 'goal'); bindSlider($('l-now'), 'baseline');
+  $('life-age').addEventListener('input', () => { S.settings.age = clamp(parseInt($('life-age').value, 10) || 20, 5, 79); S.settings.ageSet = true; syncSettingInputs(); render(); });
+  $('life-age').addEventListener('change', () => { persistSettings(); toast('Saved. Age ' + S.settings.age + '.'); });
 
   $('set-form').addEventListener('submit', e => {
     e.preventDefault();
@@ -1691,7 +1717,7 @@ footer strong{color:var(--ink)}
       $('set-note').textContent = 'Enter a target and starting point between 0.5 and 12 hours, and an age from 5 to 79.';
       return;
     }
-    S.settings = { ...S.settings, goal: Math.round(g * 60), baseline: Math.round(b * 60), age: a };
+    S.settings = { ...S.settings, goal: Math.round(g * 60), baseline: Math.round(b * 60), age: a, ageSet: true };
     persistSettings(); syncSettingInputs(); render();
     $('set-note').textContent = 'Count leisure screen time only, not work or school.';
     toast('Saved. Your target is ' + hm(S.settings.goal) + ' a day.');
