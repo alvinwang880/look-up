@@ -16,6 +16,7 @@
   --display:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
   --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
   --ease:cubic-bezier(.2,.7,.2,1);
+  --tabbar:0px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -35,7 +36,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-inline:16px;padding-block:0 72px}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-inline:16px;padding-block:0 calc(72px + var(--tabbar))}
 .wrap{max-width:1080px;margin:0 auto}
 h1,h2,h3{font-family:var(--display);font-weight:800;line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.02em}
 p{margin:0}
@@ -58,26 +59,41 @@ input[type=range]{cursor:pointer}
 .label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .green{color:var(--accent)} .orange{color:var(--screen)}
 .est{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:1px 6px;vertical-align:2px}
+.sub-muted{color:var(--muted);font-size:15px}
 
-/* header */
-header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:18px}
+/* ---------- header + navigation ---------- */
+header.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-block:16px}
 .logo-btn{border:0;background:none;padding:0;font:800 24px var(--display);letter-spacing:-.02em;color:var(--ink)}
 .logo-btn span{display:inline-block;transform:translateY(-3px) rotate(-8deg);color:var(--accent)}
 .top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
 .chip{font-size:13px;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--track);color:var(--muted);transition:background .2s,color .2s}
 .chip.synced{background:var(--accent-soft);color:var(--accent)}
 .chip.error{background:var(--screen-soft);color:var(--screen)}
-.nav-btn{padding:7px 12px;font-size:14px}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:4px}
+.tabs button{border:0;background:transparent;padding:7px 14px;font-size:15px;border-radius:9px;color:var(--muted)}
+.tabs button:hover:not(:disabled){color:var(--ink)}
+.tabs button[aria-current="page"]{background:var(--accent-soft);color:var(--ink)}
+.tabbar{display:none}
+@media (max-width:760px){
+  :root{--tabbar:64px}
+  .tabs{display:none}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--rule);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar button{border:0;background:transparent;display:grid;justify-items:center;gap:2px;padding:6px 0;font-size:11px;color:var(--muted);border-radius:10px}
+  .tabbar button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .tabbar button[aria-current="page"]{color:var(--accent)}
+  .top-right #today-date{display:none}
+}
 
-.view{animation:rise .4s var(--ease)}
+.page{animation:rise .4s var(--ease)}
 @keyframes rise{from{opacity:.001;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page-head{padding-block:6px 20px;display:grid;gap:6px}
+.page-head h1{font-size:clamp(30px,4.6vw,46px)}
+.page-head p{color:var(--muted);font-size:17px;max-width:64ch}
 
-/* toast */
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 18px;border-radius:99px;box-shadow:0 6px 24px rgb(0 0 0 / .18);transition:opacity .2s,transform .25s var(--ease);max-width:calc(100% - 32px);text-align:center;z-index:20}
+/* toast + celebration */
+.toast{position:fixed;left:50%;bottom:calc(20px + var(--tabbar) + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 18px;border-radius:16px;box-shadow:0 6px 24px rgb(0 0 0 / .18);transition:opacity .2s,transform .25s var(--ease);width:max-content;max-width:min(440px,calc(100% - 32px));text-align:center;z-index:20}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .toast.best::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px}
-
-/* celebration */
 .celebrate{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:16px;background:rgb(10 16 13 / .45);backdrop-filter:blur(3px);animation:fade .25s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .cel-card{background:var(--surface);border-radius:24px;padding:36px 28px 28px;max-width:420px;width:100%;text-align:center;display:grid;gap:12px;justify-items:center;box-shadow:0 24px 60px rgb(0 0 0 / .25);animation:pop .5s var(--ease)}
@@ -92,7 +108,7 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .cel-card p.text{color:var(--muted);font-size:17px;max-width:32ch}
 .cel-card button{margin-top:8px;padding:12px 28px;font-size:16px}
 
-/* ---------- landing ---------- */
+/* ---------- home ---------- */
 .landing{display:grid;gap:64px;padding-block:24px 8px}
 .l-hero{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:40px;align-items:center}
 .l-hero h1{font-size:clamp(40px,6.4vw,76px)}
@@ -127,22 +143,31 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .steps li::before{content:counter(s);font:800 16px var(--display);width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-content:center}
 .steps h3{font-size:20px}
 .steps p{color:var(--muted)}
+.pages-intro{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+.pi{border:1px solid var(--rule);border-radius:14px;padding:16px;background:var(--surface);text-align:left;display:grid;gap:4px;align-content:start;font-weight:400}
+.pi b{font:800 18px var(--display)}
+.pi span{color:var(--muted);font-size:14px}
 .l-final{background:var(--ink);color:var(--bg);border-radius:20px;padding:36px;display:grid;gap:14px;justify-items:start}
 .l-final h2{font-size:clamp(28px,4vw,42px)}
 .l-final p{opacity:.8;max-width:52ch}
 
-/* ---------- tracker ---------- */
-.greet{padding-block:4px 20px}
-.greet h1{font-size:clamp(28px,4.4vw,44px)}
-.greet p{color:var(--muted);margin-top:6px;font-size:17px;max-width:62ch}
+/* ---------- shared cards ---------- */
 .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
 .card{background:var(--surface);border:1px solid var(--rule);border-radius:18px;padding:22px;display:grid;gap:16px;align-content:start;box-shadow:var(--shadow)}
 .card h2{font-size:22px}
 .c7{grid-column:span 7}.c5{grid-column:span 5}.c12{grid-column:span 12}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.sub-muted{color:var(--muted);font-size:15px}
+.bar{height:8px;border-radius:99px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;width:0;transition:width .8s var(--ease)}
+.fld{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.fld input,.fld select{padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);font-weight:700;font-size:16px;color:var(--ink);transition:border-color .15s}
+.fld input:focus,.fld select:focus{border-color:var(--accent);outline:none}
+.fld input[type=number]{width:96px}
+.fld input.note{width:min(360px,100%);font-weight:400}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.confirm{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:14px;font-weight:700}
 
-/* hero: time reclaimed */
+/* ---------- today ---------- */
 .hero{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:28px;align-items:center;background:linear-gradient(160deg,var(--accent-soft),var(--surface) 70%)}
 .hero-main{display:grid;gap:10px}
 .hero-big{font:800 clamp(44px,7vw,72px)/1 var(--display);letter-spacing:-.03em;color:var(--accent)}
@@ -152,8 +177,6 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .hero-lines{display:grid;gap:2px;font-size:18px}
 .hero-lines b{font-family:var(--display);font-size:22px;color:var(--accent)}
 .next-ms{display:grid;gap:6px;margin-top:6px;font-size:14px;color:var(--muted)}
-.bar{height:8px;border-radius:99px;background:var(--track);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;width:0;transition:width .8s var(--ease)}
 .hero-motto{font-size:14px;color:var(--muted);font-style:italic}
 .qstats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .qs{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:12px 14px;display:grid;gap:2px}
@@ -164,8 +187,9 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .wdots i{flex:1;max-width:30px;height:26px;border-radius:8px;background:var(--track);display:grid;place-content:center;font:700 11px var(--body);font-style:normal;color:var(--muted)}
 .wdots i.ok{background:var(--accent);color:var(--accent-ink)} .wdots i.over{background:var(--screen-soft);color:var(--screen)}
 .wdots i.today{outline:2px solid var(--ink);outline-offset:1px}
-
-/* log card */
+.wind{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.wind p{font:800 19px/1.3 var(--display)}
+.wind span{display:block;font:400 15px var(--body);opacity:.8;margin-top:2px}
 .goal-ctl{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 14px}
 .goal-ctl label{font-size:13px;font-weight:700;color:var(--muted)}
 .goal-ctl input{width:100%;min-width:0;accent-color:var(--accent)}
@@ -183,16 +207,10 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .days button{padding:6px 0;width:46px;font-size:13px;display:grid;line-height:1.2;font-weight:700}
 .days button small{font-weight:400;color:var(--muted);font-size:11px}
 .days button.logged{border-color:var(--accent)}
-.log-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
-.log-row label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
-.log-row input{width:84px;padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);font-weight:700;font-size:18px;transition:border-color .15s}
-.log-row input:focus{border-color:var(--accent);outline:none}
 .steppers{display:flex;gap:6px}
 .steppers button{padding:9px 10px;font-size:14px}
 .status{font-size:15px;color:var(--muted);min-height:1.4em}
 .status.good{color:var(--accent);font-weight:700} .status.soft{color:var(--ink)}
-
-/* today card */
 .insight-line{font:800 20px/1.3 var(--display)}
 .divider{border-top:1px solid var(--rule)}
 .challenge{display:grid;gap:10px}
@@ -200,20 +218,6 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .check{display:flex;gap:10px;align-items:center;font-weight:700;cursor:pointer}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
 .done-msg{color:var(--accent);font-weight:700;min-height:1.4em}
-
-/* weekly report */
-.seg{display:inline-flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
-.seg button{border:0;background:transparent;padding:6px 12px;font-size:14px;border-radius:8px;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
-.wk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.wk{background:var(--bg);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
-.wk b{font:800 22px/1.15 var(--display)}
-.wk span{font-size:13px;color:var(--muted)}
-.wk.hl{background:var(--accent-soft)}
-.wk.hl b{color:var(--accent)}
-.wk-reflect{font:800 19px/1.3 var(--display)}
-
-/* focus timer */
 .timer-wrap{display:grid;place-items:center;position:relative}
 .timer{font:800 clamp(56px,9vw,80px)/1 var(--display);text-align:center;letter-spacing:-.03em;transition:color .3s}
 .timer.running{color:var(--accent)}
@@ -223,8 +227,68 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .timer-sub.good{color:var(--accent);font-weight:700}
 .presets,.timer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .focus-total{text-align:center;font-weight:700;color:var(--accent)}
+.tip{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tip .label{color:var(--accent-ink);opacity:.8}
+.tip p.text{font:800 22px/1.25 var(--display)}
+.tip p.more{opacity:.9}
 
-/* rewards */
+/* ---------- progress ---------- */
+.seg{display:inline-flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 12px;font-size:14px;border-radius:8px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+.wk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.wk{background:var(--bg);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.wk b{font:800 22px/1.15 var(--display)}
+.wk span{font-size:13px;color:var(--muted)}
+.wk.hl{background:var(--accent-soft)} .wk.hl b{color:var(--accent)}
+.wk-reflect{font:800 19px/1.3 var(--display)}
+.bn{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.bn .col{background:var(--bg);border-radius:14px;padding:14px;display:grid;gap:2px}
+.bn .col b{font:800 26px/1.1 var(--display)}
+.bn .col span{font-size:13px;color:var(--muted)}
+.bn .col.now{background:var(--accent-soft)} .bn .col.now b{color:var(--accent)}
+.bn .arrow{font:800 22px var(--display);color:var(--muted)}
+.bn-diff{font:800 20px/1.3 var(--display)}
+.cal-nav{display:flex;align-items:center;gap:6px}
+.cal-nav h2{min-width:9ch;text-align:center;font-size:20px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal .wdh{font-size:12px;font-weight:700;color:var(--muted);text-align:center;padding-bottom:2px}
+.cal button{aspect-ratio:1/1;min-width:0;padding:4px;border-radius:10px;border:1px solid var(--rule);background:var(--surface);display:grid;align-content:space-between;justify-items:start;font-weight:700;font-size:13px;text-align:left}
+.cal button small{font-size:11px;font-weight:700;justify-self:end;font-variant-numeric:tabular-nums}
+.cal button.ok{background:var(--accent-soft);border-color:transparent} .cal button.ok small{color:var(--accent)}
+.cal button.over{background:var(--screen-soft);border-color:transparent} .cal button.over small{color:var(--screen)}
+.cal button.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.cal button.sel{outline:3px solid var(--accent);outline-offset:1px}
+.cal button:disabled{opacity:.35}
+.cal .pad{visibility:hidden}
+.cal-sum{font-size:15px;color:var(--muted)}
+.editor{border:1px solid var(--rule);border-radius:14px;padding:16px;background:var(--bg);display:grid;gap:12px}
+.editor h3{font-size:18px}
+.recs{display:grid;list-style:none;padding:0;margin:0}
+.recs li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:11px 0;border-bottom:1px solid var(--rule);align-items:baseline;border-radius:8px;transition:background .6s}
+.recs li:last-child{border-bottom:0}
+.recs li span{color:var(--muted);font-size:15px}
+.recs li b{font:800 20px var(--display);text-align:right}
+.recs li small{grid-column:2;text-align:right;color:var(--muted);font-size:12px}
+.recs li.flash{background:var(--accent-soft)}
+.ins-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.ins-list li{padding:12px 14px;border-radius:12px;background:var(--bg);font-weight:700;line-height:1.4}
+.ins-list li::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:2px}
+.ins-need{color:var(--muted);font-size:15px}
+.chart-box{overflow-x:auto}
+.chart{width:100%;min-width:520px;height:auto;display:block}
+.chart .grid-l{stroke:var(--rule);stroke-width:1}
+.chart .goal-l{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:5 5}
+.chart .b-ok{fill:var(--accent)} .chart .b-over{fill:var(--screen)} .chart .b-none{fill:var(--track)} .chart .b-ex{fill:var(--rule)}
+.chart text{fill:var(--muted);font:12px var(--body)}
+.chart text.strong{fill:var(--ink);font-weight:700}
+.example{font-size:13px;font-weight:700;color:var(--screen);background:var(--screen-soft);padding:3px 8px;border-radius:6px}
+.notes{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.notes li{background:var(--bg);border-radius:12px;padding:12px 14px;display:grid;gap:2px}
+.notes li b{font:800 18px/1.3 var(--display)}
+.notes li span{font-size:13px;color:var(--muted)}
+
+/* ---------- rewards ---------- */
 .rw-intro{color:var(--muted);max-width:64ch}
 .rw-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .rw{border:1px solid var(--rule);border-radius:16px;padding:18px;display:grid;gap:10px;align-content:start;background:var(--surface);transition:background .3s,border-color .3s}
@@ -236,55 +300,27 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .rw.earned .earned-h{font:800 22px var(--display);color:var(--accent)}
 .rw.example{border-style:dashed;background:transparent;opacity:.8}
 .rw-form{border:1px solid var(--rule);border-radius:16px;padding:18px;display:grid;gap:14px;background:var(--bg)}
-.rw-form .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-.fld{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
-.fld input,.fld select{padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--surface);font-weight:700;font-size:16px;color:var(--ink)}
-.fld input:focus,.fld select:focus{border-color:var(--accent);outline:none}
-.fld input[type=text]{width:min(320px,100%)}
-.fld input[type=number]{width:110px}
+.rw-form .fld input[type=text]{width:min(320px,100%)}
+.rw-form .fld input,.rw-form .fld select{background:var(--surface)}
 .sugs{display:flex;flex-wrap:wrap;gap:6px}
 .sugs button{border-radius:99px;padding:5px 12px;font-size:14px;font-weight:700}
-.confirm{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:14px;font-weight:700}
+.ms-list{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.ms-list li{display:grid;grid-template-columns:auto 1fr auto;gap:4px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--rule)}
+.ms-list li:last-child{border-bottom:0}
+.ms-dot{width:14px;height:14px;border-radius:50%;background:var(--track);grid-row:span 2}
+.ms-list li.reached .ms-dot{background:var(--accent)}
+.ms-list li.next .ms-dot{background:var(--accent-soft);box-shadow:inset 0 0 0 2px var(--accent)}
+.ms-list b{font:800 20px var(--display)}
+.ms-list li:not(.reached):not(.next) b{color:var(--muted)}
+.ms-list p{color:var(--muted);font-size:15px;grid-column:2}
+.ms-list .when{grid-row:1/3;grid-column:3;font-size:13px;font-weight:700;color:var(--muted);text-align:right}
+.ms-list li.reached .when{color:var(--accent)}
 
-/* before / now */
-.bn{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
-.bn .col{background:var(--bg);border-radius:14px;padding:14px;display:grid;gap:2px}
-.bn .col b{font:800 26px/1.1 var(--display)}
-.bn .col span{font-size:13px;color:var(--muted)}
-.bn .col.now{background:var(--accent-soft)} .bn .col.now b{color:var(--accent)}
-.bn .arrow{font:800 22px var(--display);color:var(--muted)}
-.bn-diff{font:800 20px/1.3 var(--display)}
-
-/* records */
-.recs{display:grid;gap:0;list-style:none;padding:0;margin:0}
-.recs li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 0;border-bottom:1px solid var(--rule);align-items:baseline;border-radius:8px;transition:background .6s}
-.recs li:last-child{border-bottom:0}
-.recs li span{color:var(--muted);font-size:15px}
-.recs li b{font:800 20px var(--display);text-align:right}
-.recs li small{grid-column:2;text-align:right;color:var(--muted);font-size:12px}
-.recs li.flash{background:var(--accent-soft)}
-
-/* insights */
-.ins-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
-.ins-list li{padding:12px 14px;border-radius:12px;background:var(--bg);font-weight:700;line-height:1.4}
-.ins-list li::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:2px}
-.ins-need{color:var(--muted);font-size:15px}
-
-/* chart */
-.chart-box{overflow-x:auto}
-.chart{width:100%;min-width:520px;height:auto;display:block}
-.chart .grid-l{stroke:var(--rule);stroke-width:1}
-.chart .goal-l{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:5 5}
-.chart .b-ok{fill:var(--accent)} .chart .b-over{fill:var(--screen)} .chart .b-none{fill:var(--track)} .chart .b-ex{fill:var(--rule)}
-.chart text{fill:var(--muted);font:12px var(--body)}
-.chart text.strong{fill:var(--ink);font-weight:700}
-.example{font-size:13px;font-weight:700;color:var(--screen);background:var(--screen-soft);padding:3px 8px;border-radius:6px}
-
-/* life */
+/* ---------- you ---------- */
 .life-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:start}
 .life-wrap h2{font-size:clamp(24px,3.4vw,34px)}
 .life-wrap h2 em{font-style:normal;color:var(--accent)}
-.life-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.life-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .lk{display:grid;grid-template-columns:auto 1fr;gap:0 8px;align-items:center;background:var(--bg);border-radius:12px;padding:10px 12px}
 .lk i{width:12px;height:12px;border-radius:50%;background:var(--c);grid-row:span 2}
 .lk b{font:800 20px/1.1 var(--display)}
@@ -296,38 +332,25 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .life i.now{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
 .life-info{min-height:1.5em;font-weight:700;margin-top:10px}
 .life-note{font-size:13px;color:var(--muted)}
-
-/* tip + quote */
-.tip{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.tip .label{color:var(--accent-ink);opacity:.8}
-.tip p.text{font:800 22px/1.25 var(--display)}
-.tip p.more{opacity:.9}
-.quote{background:var(--screen-soft);border-color:transparent;box-shadow:none}
-.quote blockquote{margin:0;font:800 clamp(20px,2.4vw,24px)/1.3 var(--display);text-wrap:balance;transition:opacity .2s}
-.quote blockquote::before{content:"“";display:block;font-size:56px;line-height:.6;color:var(--screen);margin-bottom:6px}
-.quote cite{font-style:normal;color:var(--muted);font-size:15px}
-.quote-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-
-/* settings + data */
-.set-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
-.set-row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
-.set-row label{display:grid;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
-.set-row input{width:120px;padding:9px 10px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);font-weight:700}
 .set-note{font-size:14px;color:var(--muted)}
 .data-acts{display:flex;gap:8px;flex-wrap:wrap}
-.data-box{display:grid;gap:10px}
 .data-box textarea{width:100%;min-height:90px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);color:var(--ink);font:12px ui-monospace,Menlo,monospace;padding:10px}
 .privacy{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--muted)}
 .privacy b{color:var(--ink)}
+.quote{background:var(--screen-soft);border-color:transparent;box-shadow:none}
+.quote blockquote{margin:0;font:800 clamp(20px,2.4vw,26px)/1.3 var(--display);text-wrap:balance;transition:opacity .2s}
+.quote blockquote::before{content:"“";display:block;font-size:56px;line-height:.6;color:var(--screen);margin-bottom:6px}
+.quote cite{font-style:normal;color:var(--muted);font-size:15px}
+.quote-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
 footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted);display:grid;gap:4px}
 footer strong{color:var(--ink)}
 
 @media (max-width:880px){
   .c7,.c5{grid-column:span 12}
-  .hero,.l-hero,.calc2,.life-wrap,.set-grid{grid-template-columns:1fr}
+  .hero,.l-hero,.calc2,.life-wrap{grid-template-columns:1fr}
   .costs{grid-template-columns:1fr}
-  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .steps,.pages-intro{grid-template-columns:repeat(2,minmax(0,1fr))}
   .rw-list{grid-template-columns:repeat(2,minmax(0,1fr))}
   .phone{width:200px}
 }
@@ -337,10 +360,13 @@ footer strong{color:var(--ink)}
   .card{padding:18px}
   .life{grid-template-columns:repeat(10,1fr)}
   .wk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .rw-list,.steps{grid-template-columns:1fr}
+  .rw-list,.steps,.notes{grid-template-columns:1fr}
   .l-final{padding:24px}
   .bn{grid-template-columns:1fr}
   .bn .arrow{display:none}
+  .cal{gap:4px}
+  .cal button{border-radius:8px;padding:3px}
+  .cal button small{font-size:10px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -352,25 +378,30 @@ footer strong{color:var(--ink)}
 
 <div class="wrap">
   <header class="top">
-    <button type="button" class="logo-btn" id="to-landing" aria-label="Look Up home">Look <span>up</span></button>
+    <button type="button" class="logo-btn" data-nav="home" aria-label="Look Up home">Look <span>up</span></button>
+    <nav class="tabs" aria-label="Pages">
+      <button type="button" data-nav="home">Home</button>
+      <button type="button" data-nav="today">Today</button>
+      <button type="button" data-nav="progress">Progress</button>
+      <button type="button" data-nav="rewards">Rewards</button>
+      <button type="button" data-nav="you">You</button>
+    </nav>
     <div class="top-right">
       <span id="today-date"></span>
       <span class="chip" id="sync" role="status">Saved on this device</span>
-      <button type="button" class="nav-btn ghost" id="data-btn" hidden>Your data</button>
-      <button type="button" class="nav-btn" id="nav-btn">Open tracker</button>
     </div>
   </header>
 
-  <!-- ============ TITLE PAGE ============ -->
-  <main class="landing view" id="landing">
+  <!-- ================= 1. HOME ================= -->
+  <main class="page landing" id="page-home" data-title="Look Up">
     <section class="l-hero">
       <div>
         <p class="label">A global habit</p>
         <h1>The world spends <em>nearly 7 hours</em> a day on screens.</h1>
         <p class="lede">That is the average time a person spends online each day, across every country. Phones and apps are designed to keep us scrolling, and most of that time slips away without us choosing it. Look Up helps you take it back, one day at a time.</p>
         <div class="l-cta">
-          <button type="button" class="primary" data-go="app">Start tracking, it's free</button>
-          <button type="button" data-go="calc">See what you could get back</button>
+          <button type="button" class="primary" data-nav="today">Start tracking, it's free</button>
+          <button type="button" id="to-calc">See what you could get back</button>
         </div>
       </div>
       <div class="phone" aria-hidden="true">
@@ -414,28 +445,32 @@ footer strong{color:var(--ink)}
       <h2>How Look Up works</h2>
       <ol class="steps">
         <li><h3>Notice</h3><p>Copy your daily total from Screen Time or Digital Wellbeing. It takes ten seconds.</p></li>
-        <li><h3>Choose</h3><p>Pick a daily target that feels achievable, then a reward you'll give yourself.</p></li>
-        <li><h3>Put the phone down</h3><p>A small daily challenge and a phone-down timer help you do it.</p></li>
+        <li><h3>Choose</h3><p>Pick a daily target that feels achievable, and a reward you'll give yourself.</p></li>
+        <li><h3>Put the phone down</h3><p>A small daily challenge, a phone-down timer and a wind-down reminder help you do it.</p></li>
         <li><h3>See what you got back</h3><p>Every minute under your target is time reclaimed, and it adds up.</p></li>
       </ol>
+      <div class="pages-intro">
+        <button type="button" class="pi" data-nav="today"><b>Today</b><span>Log your day, see what you reclaimed, and put the phone down.</span></button>
+        <button type="button" class="pi" data-nav="progress"><b>Progress</b><span>Your week, your month, your records and patterns.</span></button>
+        <button type="button" class="pi" data-nav="rewards"><b>Rewards</b><span>Promise yourself something, then earn it with reclaimed time.</span></button>
+        <button type="button" class="pi" data-nav="you"><b>You</b><span>Your life in 80 dots, your targets, and your data.</span></button>
+      </div>
     </section>
 
     <section class="l-final">
       <h2>You didn't lose screen time. You gained your time back.</h2>
       <p>Set a target, log yesterday, and see what you reclaim. No account, and your data stays on your device.</p>
-      <button type="button" class="primary" data-go="app" id="l-final-btn">Start with a 3h target</button>
+      <button type="button" class="primary" data-nav="today" id="l-final-btn">Start with a 3h target</button>
     </section>
   </main>
 
-  <!-- ============ TRACKER ============ -->
-  <div id="app" class="view" hidden>
-    <div class="greet">
-      <h1 id="greet-h">Welcome back.</h1>
+  <!-- ================= 2. TODAY ================= -->
+  <main class="page" id="page-today" data-title="Today · Look Up" hidden>
+    <div class="page-head">
+      <h1 id="greet-h">Good morning.</h1>
       <p id="greet-p"></p>
     </div>
-
     <div class="grid">
-      <!-- 1. Time reclaimed -->
       <section class="card c12 hero" aria-labelledby="hero-h">
         <div class="hero-main">
           <p class="label" id="hero-h">Time reclaimed</p>
@@ -444,24 +479,25 @@ footer strong{color:var(--ink)}
             <p><b id="hero-week">0m</b> reclaimed this week</p>
             <p><b id="hero-total">0m</b> reclaimed since you started</p>
           </div>
-          <div class="next-ms" id="next-ms">
-            <span id="next-ms-t"></span>
-            <div class="bar"><i id="next-ms-bar"></i></div>
-          </div>
+          <div class="next-ms"><span id="next-ms-t"></span><div class="bar"><i id="next-ms-bar"></i></div></div>
           <p class="hero-motto">You didn't lose screen time. You gained your time back.</p>
         </div>
         <div class="qstats">
           <div class="qs"><b class="num" id="qs-screen">–</b><span id="qs-screen-l">Screen time</span></div>
           <div class="qs"><b class="num" id="qs-target">3h</b><span>Daily target</span></div>
-          <div class="qs"><b class="num" id="qs-streak">0</b><span id="qs-streak-l">day streak under target</span></div>
+          <div class="qs"><b class="num" id="qs-streak">0</b><span id="qs-streak-l">days in a row under target</span></div>
           <div class="qs"><b class="num" id="qs-week">0 / 0</b><span>days under target this week</span></div>
           <div class="qs wide"><span>This week</span><div class="wdots" id="wdots" aria-label="This week, Monday to Sunday"></div></div>
         </div>
       </section>
 
-      <!-- 2. Log -->
+      <section class="card c12 wind" id="wind" hidden aria-live="polite">
+        <p id="wind-t">Wind-down time.<span id="wind-s"></span></p>
+        <button type="button" class="primary" id="wind-go">Start a 25-minute phone-down</button>
+      </section>
+
       <section class="card c7" aria-labelledby="log-h">
-        <div class="card-head"><h2 id="log-h">Log your screen time</h2></div>
+        <h2 id="log-h">Log your screen time</h2>
         <div class="goal-ctl">
           <label for="goal-range">Daily target</label>
           <input type="range" id="goal-range" min="0.5" max="12" step="0.25" value="3">
@@ -477,22 +513,26 @@ footer strong{color:var(--ink)}
               <p class="label" style="margin-bottom:6px">Which day?</p>
               <div class="days" id="days" role="group" aria-label="Choose a day to log"></div>
             </div>
-            <form class="log-row" id="log-form" autocomplete="off">
-              <label for="in-h">Hours<input type="number" id="in-h" min="0" max="24" inputmode="numeric" value="0"></label>
-              <label for="in-m">Minutes<input type="number" id="in-m" min="0" max="59" step="5" inputmode="numeric" value="0"></label>
-              <div class="steppers">
-                <button type="button" id="minus" aria-label="Subtract 15 minutes">−15m</button>
-                <button type="button" id="plus" aria-label="Add 15 minutes">+15m</button>
+            <form id="log-form" autocomplete="off" style="display:grid;gap:12px">
+              <div class="row">
+                <label class="fld" for="in-h">Hours<input type="number" id="in-h" min="0" max="24" inputmode="numeric" value="0"></label>
+                <label class="fld" for="in-m">Minutes<input type="number" id="in-m" min="0" max="59" step="5" inputmode="numeric" value="0"></label>
+                <div class="steppers">
+                  <button type="button" id="minus" aria-label="Subtract 15 minutes">−15m</button>
+                  <button type="button" id="plus" aria-label="Add 15 minutes">+15m</button>
+                </div>
               </div>
-              <button type="submit" class="primary" id="save">Save</button>
-              <button type="button" class="ghost" id="clear" hidden>Clear</button>
+              <label class="fld" for="in-note">What did you do instead? (optional)<input type="text" class="note" id="in-note" maxlength="80" placeholder="e.g. went for a run, read, saw friends"></label>
+              <div class="row">
+                <button type="submit" class="primary" id="save">Save</button>
+                <button type="button" class="ghost" id="clear" hidden>Clear</button>
+              </div>
             </form>
             <p class="status" id="log-status" role="status"></p>
           </div>
         </div>
       </section>
 
-      <!-- 3. Today: insight + challenge -->
       <section class="card c5" aria-labelledby="today-h">
         <p class="label" id="today-h">Today</p>
         <p class="insight-line" id="dash-insight"></p>
@@ -505,7 +545,38 @@ footer strong{color:var(--ink)}
         </div>
       </section>
 
-      <!-- 4. Weekly report -->
+      <section class="card c5" id="timer-card" aria-labelledby="focus-h">
+        <div class="card-head"><h2 id="focus-h">Phone-down timer</h2><span class="label">Focus</span></div>
+        <div class="presets" role="group" aria-label="Timer length" id="presets">
+          <button type="button" data-min="15">15 min</button>
+          <button type="button" data-min="25" aria-pressed="true">25 min</button>
+          <button type="button" data-min="45">45 min</button>
+          <button type="button" data-min="60">60 min</button>
+        </div>
+        <div class="timer-wrap" id="timer-wrap"><div class="timer num" id="timer">25:00</div></div>
+        <p class="timer-sub" id="timer-sub" role="status">Put your phone face down, start the timer, and do one thing.</p>
+        <div class="timer-actions">
+          <button type="button" class="primary" id="t-start">Start</button>
+          <button type="button" id="t-stop" disabled>Stop</button>
+        </div>
+        <p class="focus-total num" id="focus-total">0 phone-free minutes today</p>
+      </section>
+
+      <section class="card c7 tip" aria-labelledby="tip-h">
+        <p class="label" id="tip-h">Tip of the day</p>
+        <p class="text" id="tip-text"></p>
+        <p class="more" id="tip-more"></p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= 3. PROGRESS ================= -->
+  <main class="page" id="page-progress" data-title="Progress · Look Up" hidden>
+    <div class="page-head">
+      <h1>Your progress</h1>
+      <p>Your week, your month and your patterns, all worked out from what you've logged.</p>
+    </div>
+    <div class="grid">
       <section class="card c7" aria-labelledby="wk-h">
         <div class="card-head">
           <h2 id="wk-h">Your week</h2>
@@ -527,49 +598,6 @@ footer strong{color:var(--ink)}
         <p class="sub-muted" id="wk-compare"></p>
       </section>
 
-      <!-- 5. Focus timer -->
-      <section class="card c5" aria-labelledby="focus-h">
-        <div class="card-head"><h2 id="focus-h">Phone-down timer</h2><span class="label">Focus</span></div>
-        <div class="presets" role="group" aria-label="Timer length" id="presets">
-          <button type="button" data-min="15">15 min</button>
-          <button type="button" data-min="25" aria-pressed="true">25 min</button>
-          <button type="button" data-min="45">45 min</button>
-          <button type="button" data-min="60">60 min</button>
-        </div>
-        <div class="timer-wrap" id="timer-wrap"><div class="timer num" id="timer">25:00</div></div>
-        <p class="timer-sub" id="timer-sub" role="status">Put your phone face down, start the timer, and do one thing.</p>
-        <div class="timer-actions">
-          <button type="button" class="primary" id="t-start">Start</button>
-          <button type="button" id="t-stop" disabled>Stop</button>
-        </div>
-        <p class="focus-total num" id="focus-total">0 phone-free minutes today</p>
-      </section>
-
-      <!-- 6. Rewards -->
-      <section class="card c12" aria-labelledby="rw-h">
-        <div class="card-head">
-          <h2 id="rw-h">Your Rewards</h2>
-          <button type="button" class="primary" id="rw-add">Add a reward</button>
-        </div>
-        <p class="rw-intro">Choose something you'll give yourself once you've reclaimed enough time. Look Up doesn't buy or provide anything. It simply keeps the promise you made to yourself, and tells you when you've earned it.</p>
-        <form class="rw-form" id="rw-form" hidden autocomplete="off">
-          <p class="label" id="rw-form-h">New reward</p>
-          <div class="sugs" id="rw-sugs" aria-label="Suggestions"></div>
-          <div class="row">
-            <label class="fld" for="rw-title">Reward<input type="text" id="rw-title" maxlength="40" placeholder="e.g. Movie night"></label>
-            <label class="fld" for="rw-hours">Hours reclaimed<input type="number" id="rw-hours" min="0.5" max="500" step="0.5" value="3"></label>
-            <label class="fld" for="rw-period">When<select id="rw-period"><option value="week">this week (resets every Monday)</option><option value="total">in total, starting now</option></select></label>
-          </div>
-          <p class="ob-hint orange" id="rw-err" role="status"></p>
-          <div class="row">
-            <button type="submit" class="primary" id="rw-save">Save reward</button>
-            <button type="button" class="ghost" id="rw-cancel">Cancel</button>
-          </div>
-        </form>
-        <div class="rw-list" id="rw-list"></div>
-      </section>
-
-      <!-- 7. Before → now -->
       <section class="card c5" aria-labelledby="bn-h">
         <h2 id="bn-h">Before → now</h2>
         <div class="bn num">
@@ -581,9 +609,46 @@ footer strong{color:var(--ink)}
         <p class="sub-muted" id="bn-est"></p>
       </section>
 
-      <!-- 8. Records -->
-      <section class="card c7" aria-labelledby="rec-h">
-        <h2 id="rec-h">Your Records</h2>
+      <section class="card c7" aria-labelledby="cal-h">
+        <div class="card-head">
+          <div class="cal-nav">
+            <button type="button" class="small" id="cal-prev" aria-label="Previous month">‹</button>
+            <h2 id="cal-h"></h2>
+            <button type="button" class="small" id="cal-next" aria-label="Next month">›</button>
+          </div>
+          <span class="sub-muted">Tap a day to add or edit it</span>
+        </div>
+        <div class="cal num" id="cal" role="grid" aria-labelledby="cal-h"></div>
+        <p class="cal-sum" id="cal-sum"></p>
+        <form class="editor" id="ed" hidden autocomplete="off">
+          <h3 id="ed-h"></h3>
+          <div class="row">
+            <label class="fld" for="ed-h-in">Hours<input type="number" id="ed-h-in" min="0" max="24" inputmode="numeric"></label>
+            <label class="fld" for="ed-m-in">Minutes<input type="number" id="ed-m-in" min="0" max="59" step="5" inputmode="numeric"></label>
+          </div>
+          <label class="fld" for="ed-note">What did you do instead?<input type="text" class="note" id="ed-note" maxlength="80" placeholder="optional"></label>
+          <p class="sub-muted" id="ed-target"></p>
+          <div class="row">
+            <button type="submit" class="primary">Save day</button>
+            <button type="button" class="ghost" id="ed-clear">Clear day</button>
+            <button type="button" class="ghost" id="ed-close">Close</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card c5" aria-labelledby="ins-h2">
+        <h2 id="ins-h2">Your insights</h2>
+        <ul class="ins-list" id="ins-list"></ul>
+        <p class="ins-need" id="ins-need"></p>
+      </section>
+
+      <section class="card c7" aria-labelledby="hist-h">
+        <div class="card-head"><h2 id="hist-h">Last 14 days</h2><span id="hist-badge"></span></div>
+        <div class="chart-box"><svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Bar chart of daily screen time for the last 14 days"></svg></div>
+      </section>
+
+      <section class="card c5" aria-labelledby="rec-h">
+        <h2 id="rec-h">Your records</h2>
         <ul class="recs num" id="recs">
           <li data-r="bestDay"><span>Best screen-time day</span><b>–</b><small></small></li>
           <li data-r="longestStreak"><span>Longest streak under target</span><b>–</b><small></small></li>
@@ -593,20 +658,57 @@ footer strong{color:var(--ink)}
         </ul>
       </section>
 
-      <!-- 9. Chart -->
-      <section class="card c7" aria-labelledby="hist-h">
-        <div class="card-head"><h2 id="hist-h">Last 14 days</h2><span id="hist-badge"></span></div>
-        <div class="chart-box"><svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Bar chart of daily screen time for the last 14 days"></svg></div>
+      <section class="card c12" aria-labelledby="notes-h">
+        <h2 id="notes-h">What you did with your time</h2>
+        <ul class="notes" id="notes"></ul>
+        <p class="sub-muted" id="notes-empty">When you log a day, add what you did instead of scrolling. It shows up here, so you can see what your reclaimed time became.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= 4. REWARDS ================= -->
+  <main class="page" id="page-rewards" data-title="Rewards · Look Up" hidden>
+    <div class="page-head">
+      <h1>Your rewards</h1>
+      <p>Promise yourself something worth putting the phone down for. Look Up doesn't buy or provide anything. It keeps the promise you made to yourself, and tells you when you've earned it.</p>
+    </div>
+    <div class="grid">
+      <section class="card c12" aria-labelledby="rw-h">
+        <div class="card-head">
+          <h2 id="rw-h">Your Rewards</h2>
+          <button type="button" class="primary" id="rw-add">Add a reward</button>
+        </div>
+        <form class="rw-form" id="rw-form" hidden autocomplete="off">
+          <p class="label" id="rw-form-h">New reward</p>
+          <div class="sugs" id="rw-sugs" aria-label="Suggestions"></div>
+          <div class="row">
+            <label class="fld" for="rw-title">Reward<input type="text" id="rw-title" maxlength="40" placeholder="e.g. Movie night"></label>
+            <label class="fld" for="rw-hours">Hours reclaimed<input type="number" id="rw-hours" min="0.5" max="500" step="0.5" value="3"></label>
+            <label class="fld" for="rw-period">When<select id="rw-period"><option value="week">this week (resets every Monday)</option><option value="total">in total, starting now</option></select></label>
+          </div>
+          <p class="orange" id="rw-err" role="status"></p>
+          <div class="row">
+            <button type="submit" class="primary">Save reward</button>
+            <button type="button" class="ghost" id="rw-cancel">Cancel</button>
+          </div>
+        </form>
+        <div class="rw-list" id="rw-list"></div>
       </section>
 
-      <!-- 10. Insights -->
-      <section class="card c5" aria-labelledby="ins-h2">
-        <h2 id="ins-h2">Your insights</h2>
-        <ul class="ins-list" id="ins-list"></ul>
-        <p class="ins-need" id="ins-need"></p>
+      <section class="card c12" aria-labelledby="ms-h">
+        <div class="card-head"><h2 id="ms-h">Milestones</h2><span class="sub-muted" id="ms-total"></span></div>
+        <ul class="ms-list" id="ms-list"></ul>
       </section>
+    </div>
+  </main>
 
-      <!-- 11. Life -->
+  <!-- ================= 5. YOU ================= -->
+  <main class="page" id="page-you" data-title="You · Look Up" hidden>
+    <div class="page-head">
+      <h1>You</h1>
+      <p>Your time, your targets and your data. Everything here stays private.</p>
+    </div>
+    <div class="grid">
       <section class="card c12" aria-labelledby="life-h">
         <div class="life-wrap">
           <div style="display:grid;gap:14px">
@@ -632,70 +734,76 @@ footer strong{color:var(--ink)}
         </div>
       </section>
 
-      <!-- 12. Tip + quote -->
-      <section class="card c7 tip" aria-labelledby="tip-h">
-        <p class="label" id="tip-h">Tip of the day</p>
-        <p class="text" id="tip-text"></p>
-        <p class="more" id="tip-more"></p>
+      <section class="card c7" aria-labelledby="set-h">
+        <h2 id="set-h">Your targets</h2>
+        <form class="row" id="set-form">
+          <label class="fld" for="set-goal">Daily target (hours)<input type="number" id="set-goal" min="0.5" max="12" step="0.25" value="3"></label>
+          <label class="fld" for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="0.25" value="5"></label>
+          <label class="fld" for="set-age">Your age<input type="number" id="set-age" min="5" max="79" value="20"></label>
+          <button type="submit" class="primary">Save</button>
+        </form>
+        <p class="set-note" id="set-note">Count leisure screen time only, not work or school.</p>
+        <div class="divider"></div>
+        <h2>Wind-down hours</h2>
+        <p class="set-note">A calm reminder on the Today page during the hours you'd like to be off your phone, like before bed.</p>
+        <form class="row" id="wd-form">
+          <label class="check" for="wd-on"><input type="checkbox" id="wd-on"> Remind me</label>
+          <label class="fld" for="wd-start">From<input type="time" id="wd-start" value="22:00"></label>
+          <label class="fld" for="wd-end">Until<input type="time" id="wd-end" value="07:00"></label>
+          <button type="submit" class="primary">Save</button>
+        </form>
       </section>
-      <section class="card c5 quote" aria-label="Quote">
+
+      <section class="card c5 data-box" id="data" aria-labelledby="data-h">
+        <h2 id="data-h">Your data</h2>
+        <p class="privacy" id="privacy"><b>Private by design.</b> No account, no email, no tracking. Everything is stored in this browser on this device.</p>
+        <div class="data-acts">
+          <button type="button" id="exp-btn">Export my data</button>
+          <button type="button" id="imp-btn">Import my data</button>
+          <button type="button" class="danger" id="del-btn">Delete all my data</button>
+          <input type="file" id="imp-file" accept="application/json,.json" hidden>
+        </div>
+        <div id="exp-box" hidden style="display:grid;gap:8px">
+          <p class="set-note">Your backup is below. If the file didn't download, copy it and paste it into Import on your other device.</p>
+          <textarea id="exp-text" readonly aria-label="Your backup"></textarea>
+          <div class="data-acts"><button type="button" class="small" id="exp-copy">Copy backup</button><button type="button" class="small ghost" id="exp-close">Close</button></div>
+        </div>
+        <div id="imp-box" hidden style="display:grid;gap:8px">
+          <p class="set-note">Choose a backup file, or paste a backup below.</p>
+          <textarea id="imp-text" aria-label="Paste a backup"></textarea>
+          <div class="data-acts"><button type="button" class="small" id="imp-choose">Choose file</button><button type="button" class="small primary" id="imp-go">Import</button><button type="button" class="small ghost" id="imp-close">Cancel</button></div>
+          <p class="confirm" id="imp-confirm" hidden></p>
+        </div>
+        <div class="confirm" id="del-confirm" hidden>
+          <span>This deletes every log, reward and setting. It can't be undone.</span>
+          <button type="button" class="small danger" id="del-yes">Yes, delete everything</button>
+          <button type="button" class="small ghost" id="del-no">Cancel</button>
+        </div>
+      </section>
+
+      <section class="card c12 quote" aria-label="Quote">
         <blockquote id="q-text"></blockquote>
         <div class="quote-foot">
           <cite id="q-by"></cite>
           <button type="button" id="q-next">Another quote</button>
         </div>
       </section>
-
-      <!-- 13. Settings + data -->
-      <section class="card c12" id="data" aria-labelledby="set-h">
-        <h2 id="set-h">Settings and your data</h2>
-        <div class="set-grid">
-          <div style="display:grid;gap:12px">
-            <p class="label">Your targets</p>
-            <form class="set-row" id="set-form">
-              <label for="set-goal">Daily target (hours)<input type="number" id="set-goal" min="0.5" max="12" step="0.25" value="3"></label>
-              <label for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="0.25" value="5"></label>
-              <label for="set-age">Your age<input type="number" id="set-age" min="5" max="79" value="20"></label>
-              <button type="submit" class="primary">Save</button>
-            </form>
-            <p class="set-note" id="set-note">Count leisure screen time only, not work or school.</p>
-          </div>
-          <div class="data-box">
-            <p class="label">Your data</p>
-            <p class="privacy" id="privacy"><b>Private by design.</b> No account, no email, no tracking. Everything is stored in this browser on this device.</p>
-            <div class="data-acts">
-              <button type="button" id="exp-btn">Export my data</button>
-              <button type="button" id="imp-btn">Import my data</button>
-              <button type="button" class="danger" id="del-btn">Delete all my data</button>
-              <input type="file" id="imp-file" accept="application/json,.json" hidden>
-            </div>
-            <div id="exp-box" hidden style="display:grid;gap:8px">
-              <p class="set-note">Your backup is below. If the file didn't download, copy it and paste it into Import on your other device.</p>
-              <textarea id="exp-text" readonly aria-label="Your backup"></textarea>
-              <div class="data-acts"><button type="button" class="small" id="exp-copy">Copy backup</button><button type="button" class="small ghost" id="exp-close">Close</button></div>
-            </div>
-            <div id="imp-box" hidden style="display:grid;gap:8px">
-              <p class="set-note">Choose a backup file, or paste a backup below.</p>
-              <textarea id="imp-text" aria-label="Paste a backup"></textarea>
-              <div class="data-acts"><button type="button" class="small" id="imp-choose">Choose file</button><button type="button" class="small primary" id="imp-go">Import</button><button type="button" class="small ghost" id="imp-close">Cancel</button></div>
-              <p class="confirm" id="imp-confirm" hidden></p>
-            </div>
-            <div class="confirm" id="del-confirm" hidden>
-              <span>This deletes every log, reward and setting. It can't be undone.</span>
-              <button type="button" class="small danger" id="del-yes">Yes, delete everything</button>
-              <button type="button" class="small ghost" id="del-no">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
-  </div>
+  </main>
 
   <footer>
     <p><strong>Look Up</strong> helps you spend less of your free time on your phone and see what you get back.</p>
     <p>Free, private and account-free. Figures are estimates for motivation, not medical advice.</p>
   </footer>
 </div>
+
+<nav class="tabbar" aria-label="Pages">
+  <button type="button" data-nav="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button type="button" data-nav="today"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Today</button>
+  <button type="button" data-nav="progress"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progress</button>
+  <button type="button" data-nav="rewards"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></svg>Rewards</button>
+  <button type="button" data-nav="you"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>You</button>
+</nav>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="celebrate" id="cel" hidden role="dialog" aria-modal="true" aria-labelledby="cel-h">
@@ -723,10 +831,13 @@ footer strong{color:var(--ink)}
   const WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const WDL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const shortDate = k => dateOf(k).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const longDate = k => dateOf(k).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const smooth = () => reduceMotion ? 'auto' : 'smooth';
   const safeGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
   const safeSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch(e){} };
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
   // ---------- content ----------
   const CHALLENGES = [
@@ -793,6 +904,7 @@ footer strong{color:var(--ink)}
     [250, 'More than ten full days. You didn\'t lose screen time. You gained your time back.']
   ];
   const REWARD_SUGS = ['Movie night', 'Gaming session', 'Favourite meal', 'Going out', 'Something I planned to buy', 'Free afternoon', 'Time with friends'];
+  const PAGES = ['home', 'today', 'progress', 'rewards', 'you'];
 
   // ---------- dates ----------
   let now, todayKey, dayIndex;
@@ -808,10 +920,15 @@ footer strong{color:var(--ink)}
   const lastN = n => { const out = []; for (let i = n - 1; i >= 0; i--) out.push(keyOf(addDays(now, -i))); return out; };
   const mondayOf = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
   const weekKeys = off => { const m = addDays(mondayOf(now), off * 7); return Array.from({ length: 7 }, (_, i) => keyOf(addDays(m, i))); };
+  // mornings default to yesterday, since today isn't finished yet
   let selKey = keyOf(addDays(now, now.getHours() < 17 ? -1 : 0));
 
   // ---------- state ----------
-  const DEFAULTS = () => ({ settings: { goal: 180, baseline: 300, age: 20 }, days: {}, meta: { milestones: [], rewards: [] } });
+  const DEFAULTS = () => ({
+    settings: { goal: 180, baseline: 300, age: 20, windOn: false, windStart: '22:00', windEnd: '07:00' },
+    days: {},
+    meta: { milestones: [], rewards: [] }
+  });
   let S = DEFAULTS();
   const LS_KEY = 'lookup-v2', TIMER_KEY = 'lookup-timer';
   const entry = k => S.days[k] || {};
@@ -830,8 +947,8 @@ footer strong{color:var(--ink)}
     };
     if (!Array.isArray(out.meta.milestones)) out.meta.milestones = [];
     if (!Array.isArray(out.meta.rewards)) out.meta.rewards = [];
-    // older logs didn't store their target: pin them to the target at load time so history doesn't shift
-    Object.keys(out.days).forEach(k => { const e = out.days[k]; if (typeof e.mins === 'number' && typeof e.goal !== 'number') e.goal = out.settings.goal; });
+    // older logs didn't store their target: pin them so history doesn't shift when the target changes
+    Object.keys(out.days).forEach(k => { const e = out.days[k]; if (e && typeof e.mins === 'number' && typeof e.goal !== 'number') e.goal = out.settings.goal; });
     return out;
   }
   function loadLocal(){ try { S = normalize(JSON.parse(safeGet(LS_KEY) || 'null')); } catch(e){ S = DEFAULTS(); } }
@@ -853,15 +970,21 @@ footer strong{color:var(--ink)}
   function celebrate(kicker, title, text){ celQ.push([kicker, title, text]); if ($('cel').hidden) showCel(); }
   function showCel(){
     const c = celQ.shift();
-    if (!c){ $('cel').hidden = true; if (lastFocus) lastFocus.focus({ preventScroll: true }); return; }
+    if (!c) return;
     lastFocus = lastFocus || document.activeElement;
     $('cel-k').textContent = c[0]; $('cel-h').textContent = c[1]; $('cel-p').textContent = c[2];
-    const card = document.querySelector('.cel-card'), el = $('cel');
-    el.hidden = false; card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
+    const card = document.querySelector('.cel-card');
+    $('cel').hidden = false;
+    card.style.animation = 'none'; void card.offsetWidth; card.style.animation = '';
     document.querySelectorAll('.cel-ring .b, .cel-ring path').forEach(p => { p.style.animation = 'none'; void p.getBoundingClientRect(); p.style.animation = ''; });
     $('cel-ok').focus({ preventScroll: true });
   }
-  function closeCel(){ if (!celQ.length){ $('cel').hidden = true; if (lastFocus) lastFocus.focus({ preventScroll: true }); lastFocus = null; } else showCel(); }
+  function closeCel(){
+    if (celQ.length){ showCel(); return; }
+    $('cel').hidden = true;
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+    lastFocus = null;
+  }
   $('cel-ok').addEventListener('click', closeCel);
   $('cel').addEventListener('click', e => { if (e.target.id === 'cel') closeCel(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('cel').hidden) closeCel(); });
@@ -902,7 +1025,6 @@ footer strong{color:var(--ink)}
     persistSettings(); persistMeta();
     [...new Set(Object.keys(S.days).map(k => k.slice(0, 7)))].forEach(m => persistDay(m + '-01'));
   }
-
   async function connect(){
     if (!window.claude || !window.claude.use) return;
     try {
@@ -988,6 +1110,15 @@ footer strong{color:var(--ink)}
   }
   const REC_LABEL = { bestDay: 'Best screen-time day', longestStreak: 'Longest streak', mostDay: 'Most reclaimed in one day', mostWeek: 'Most reclaimed in one week', longestFocus: 'Longest phone-free session' };
   const recText = (id, v) => id === 'longestStreak' ? v + (v === 1 ? ' day' : ' days') : hm(v);
+  // the date each milestone was reached, worked out from the log itself
+  function milestoneDates(){
+    const out = {}; let run = 0;
+    loggedKeys().forEach(k => {
+      run += reclaimedDay(k);
+      MILESTONES.forEach(([h]) => { if (!out[h] && run >= h * 60) out[h] = k; });
+    });
+    return out;
+  }
 
   function insights(){
     const out = [], all = loggedKeys(), l7 = lastN(7).filter(logged), a = recentAvg(), b = S.settings.baseline;
@@ -1012,6 +1143,8 @@ footer strong{color:var(--ink)}
     if (wk.sessions >= 2) out.push('You finished ' + wk.sessions + ' phone-down sessions this week, ' + hm(wk.focus) + ' in total.');
     const ch = lastN(7).filter(k => entry(k).done).length;
     if (ch >= 2) out.push('You completed ' + ch + ' phone-free challenges in the last 7 days.');
+    const noted = lastN(14).filter(k => entry(k).note).length;
+    if (noted >= 3) out.push('You wrote down what you did instead on ' + noted + ' of the last 14 days.');
     return out;
   }
   function insightNeed(){
@@ -1029,7 +1162,6 @@ footer strong{color:var(--ink)}
   const before = () => ({ rec: records() });
   function after(prev){
     let metaChanged = false;
-    // milestones: each shown once; if several are crossed at once, celebrate the biggest
     const hrs = lifetimeReclaimed() / 60;
     const fresh = MILESTONES.filter(([h]) => hrs >= h && !S.meta.milestones.includes(h));
     if (fresh.length){
@@ -1038,7 +1170,6 @@ footer strong{color:var(--ink)}
       celebrate('Milestone', h + ' HOURS RECLAIMED', line);
       metaChanged = true;
     }
-    // rewards reached for the first time in this period
     S.meta.rewards.forEach(r => {
       const p = rewardProgress(r);
       if (p.done && r.celebrated !== p.period){
@@ -1047,7 +1178,6 @@ footer strong{color:var(--ink)}
       }
     });
     if (metaChanged) persistMeta();
-    // personal bests: only when beating an earlier value
     const cur = records(), flashed = [];
     Object.keys(REC_LABEL).forEach(id => {
       const a = prev.rec[id], b = cur[id];
@@ -1063,16 +1193,15 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- rewards ----------
+  const rewardStart = () => keyOf(addDays(now, now.getHours() < 17 ? -1 : 0));
   function rewardProgress(r){
     if (r.period === 'week'){
-      const keys = weekKeys(0);
-      return { v: weekStats(keys).reclaimed, need: r.mins, period: 'w' + keys[0], done: weekStats(keys).reclaimed >= r.mins };
+      const keys = weekKeys(0), v = weekStats(keys).reclaimed;
+      return { v, need: r.mins, period: 'w' + keys[0], done: v >= r.mins };
     }
     const v = sum(loggedKeys().filter(k => k >= r.since).map(reclaimedDay));
     return { v, need: r.mins, period: 't' + r.since, done: v >= r.mins };
   }
-  // a new total counts from the next day you log: yesterday before 5pm (morning logging), today after
-  const rewardStart = () => keyOf(addDays(now, now.getHours() < 17 ? -1 : 0));
   let rwEditing = null, rwDeleting = null;
   function renderRewards(){
     const list = $('rw-list'); list.innerHTML = '';
@@ -1086,22 +1215,15 @@ footer strong{color:var(--ink)}
       el.className = 'rw' + (p.done && !enjoyed ? ' earned' : '');
       const req = 'After ' + hm(r.mins) + ' reclaimed ' + (r.period === 'week' ? 'this week' : 'since ' + shortDate(r.since));
       let body;
-      if (enjoyed){
-        body = '<p class="prog green">Enjoyed. ' + (r.period === 'week' ? 'It resets on Monday.' : 'Set it again whenever you like.') + '</p>';
-      } else if (p.done){
-        body = '<p class="earned-h">You earned it.</p><p>You said you\'d give yourself “' + esc(r.title) + '”. Go enjoy it.</p>';
-      } else {
-        body = '<div class="bar"><i style="width:' + Math.min(100, p.v / p.need * 100).toFixed(1) + '%"></i></div><p class="prog num">' + hm(p.v) + ' of ' + hm(p.need) + '</p>';
-      }
-      let acts;
-      if (rwDeleting === r.id){
-        acts = '<div class="confirm">Delete this reward? <button type="button" class="small danger" data-a="del-yes">Delete</button><button type="button" class="small ghost" data-a="del-no">Keep</button></div>';
-      } else {
-        acts = '<div class="acts">'
+      if (enjoyed) body = '<p class="prog green">Enjoyed. ' + (r.period === 'week' ? 'It resets on Monday.' : 'Set it again whenever you like.') + '</p>';
+      else if (p.done) body = '<p class="earned-h">You earned it.</p><p>You said you\'d give yourself “' + esc(r.title) + '”. Go enjoy it.</p>';
+      else body = '<div class="bar"><i style="width:' + Math.min(100, p.v / p.need * 100).toFixed(1) + '%"></i></div><p class="prog num">' + hm(p.v) + ' of ' + hm(p.need) + '</p>';
+      const acts = rwDeleting === r.id
+        ? '<div class="confirm">Delete this reward? <button type="button" class="small danger" data-a="del-yes">Delete</button><button type="button" class="small ghost" data-a="del-no">Keep</button></div>'
+        : '<div class="acts">'
           + (p.done && !enjoyed ? '<button type="button" class="small primary" data-a="enjoy">I enjoyed it</button>' : '')
           + (enjoyed && r.period === 'total' ? '<button type="button" class="small" data-a="again">Set again</button>' : '')
           + '<button type="button" class="small ghost" data-a="edit">Edit</button><button type="button" class="small ghost" data-a="del">Delete</button></div>';
-      }
       el.innerHTML = '<h3>' + esc(r.title) + '</h3><p class="req">' + req + '</p>' + body + acts;
       el.addEventListener('click', e => {
         const a = e.target.dataset && e.target.dataset.a; if (!a) return;
@@ -1115,13 +1237,11 @@ footer strong{color:var(--ink)}
       list.appendChild(el);
     });
   }
-  (function buildSugs(){
-    REWARD_SUGS.forEach(s => {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
-      b.addEventListener('click', () => { $('rw-title').value = s; $('rw-title').focus(); });
-      $('rw-sugs').appendChild(b);
-    });
-  })();
+  REWARD_SUGS.forEach(s => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = s;
+    b.addEventListener('click', () => { $('rw-title').value = s; $('rw-title').focus(); });
+    $('rw-sugs').appendChild(b);
+  });
   function openRewardForm(r){
     rwEditing = r ? r.id : null;
     $('rw-form-h').textContent = r ? 'Edit reward' : 'New reward';
@@ -1140,7 +1260,7 @@ footer strong{color:var(--ink)}
     const title = $('rw-title').value.trim(), hrs = parseFloat($('rw-hours').value), period = $('rw-period').value;
     if (!title){ $('rw-err').textContent = 'Give your reward a name, like "Movie night".'; return; }
     if (!(hrs >= 0.5 && hrs <= 500)){ $('rw-err').textContent = 'Set between 0.5 and 500 hours.'; return; }
-    const prev = before();
+    const prev = before(), wasEditing = !!rwEditing;
     if (rwEditing){
       const r = S.meta.rewards.find(x => x.id === rwEditing);
       if (r){
@@ -1151,15 +1271,30 @@ footer strong{color:var(--ink)}
     } else {
       S.meta.rewards.push({ id: 'r' + Date.now().toString(36), title, mins: Math.round(hrs * 60), period, since: rewardStart() });
     }
-    const wasEditing = !!rwEditing;
     persistMeta(); closeRewardForm(); after(prev);
     toast(wasEditing ? 'Reward updated.' : 'Reward saved. Now go and earn it.');
   });
 
-  // ---------- render: landing ----------
+  function renderMilestones(){
+    const total = lifetimeReclaimed(), dates = milestoneDates(), ul = $('ms-list');
+    $('ms-total').textContent = hm(total) + ' reclaimed so far';
+    ul.innerHTML = '';
+    let nextSet = false;
+    MILESTONES.forEach(([h, line]) => {
+      const li = document.createElement('li'), reached = total >= h * 60;
+      let when;
+      if (reached){ li.className = 'reached'; when = dates[h] ? 'Reached ' + shortDate(dates[h]) : 'Reached'; }
+      else if (!nextSet){ li.className = 'next'; nextSet = true; when = hm(h * 60 - total) + ' to go'; }
+      else when = '';
+      li.innerHTML = '<i class="ms-dot"></i><b>' + h + ' hours reclaimed</b><span class="when num">' + when + '</span><p>' + esc(line) + '</p>';
+      ul.appendChild(li);
+    });
+  }
+
+  // ---------- render: home ----------
   const lifeLeft = () => 80 - clamp(Math.round(S.settings.age), 5, 79);
   const yearsAt = m => lifeLeft() * (m / 60) / 16; // share of 16 waking hours, to age 80
-  function renderLanding(){
+  function renderHome(){
     const b = S.settings.baseline, g = S.settings.goal;
     $('l-now-o').textContent = hm(b); $('l-goal-o').textContent = hm(g);
     $('l-now-res').innerHTML = 'That\'s <b class="num">' + Math.round(b * 365 / 1440) + ' days</b> a year, and about <b class="num">' + yearsAt(b).toFixed(1) + ' years</b> of your waking life by age 80.';
@@ -1172,10 +1307,8 @@ footer strong{color:var(--ink)}
     $('l-quote').textContent = lq[0]; $('l-quote-by').textContent = lq[1];
   }
 
-  // ---------- render: tracker ----------
+  // ---------- render: today ----------
   const dayLabel = k => k === todayKey ? 'today' : k === yesterdayKey() ? 'yesterday' : dateOf(k).toLocaleDateString(undefined, { weekday: 'long' });
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-
   function renderHeader(){
     $('today-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
     const h = now.getHours();
@@ -1184,7 +1317,6 @@ footer strong{color:var(--ink)}
       ? 'Log yesterday\'s total from Screen Time or Digital Wellbeing, then see what you reclaimed.'
       : 'Log today\'s total before bed, and take on today\'s challenge if you haven\'t yet.';
   }
-
   function renderHero(){
     const hk = logged(todayKey) ? todayKey : logged(yesterdayKey()) ? yesterdayKey() : null;
     const big = $('hero-big');
@@ -1202,13 +1334,12 @@ footer strong{color:var(--ink)}
     const wk = weekStats(weekKeys(0)), total = lifetimeReclaimed();
     $('hero-week').textContent = hm(wk.reclaimed);
     $('hero-total').textContent = hm(total);
-    const next = MILESTONES.find(([h]) => total / 60 < h);
-    if (next){
-      const prevH = [0, ...MILESTONES.map(m => m[0])][MILESTONES.indexOf(next)];
-      $('next-ms-t').textContent = 'Next milestone: ' + next[0] + ' hours reclaimed · ' + hm(next[0] * 60 - total) + ' to go';
-      $('next-ms-bar').style.width = clamp((total / 60 - prevH) / (next[0] - prevH) * 100, 0, 100).toFixed(1) + '%';
+    const idx = MILESTONES.findIndex(([h]) => total / 60 < h);
+    if (idx >= 0){
+      const next = MILESTONES[idx][0], prevH = idx ? MILESTONES[idx - 1][0] : 0;
+      $('next-ms-t').textContent = 'Next milestone: ' + next + ' hours reclaimed · ' + hm(next * 60 - total) + ' to go';
+      $('next-ms-bar').style.width = clamp((total / 60 - prevH) / (next - prevH) * 100, 0, 100).toFixed(1) + '%';
     } else { $('next-ms-t').textContent = 'Every milestone reached. Remarkable.'; $('next-ms-bar').style.width = '100%'; }
-
     $('qs-screen').textContent = hk ? hm(entry(hk).mins) : '–';
     $('qs-screen-l').textContent = hk ? 'Screen time ' + dayLabel(hk) : 'Screen time';
     $('qs-target').textContent = hm(S.settings.goal);
@@ -1226,7 +1357,17 @@ footer strong{color:var(--ink)}
       wd.appendChild(i);
     });
   }
-
+  const toMin = t => { const [h, m] = String(t || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
+  function inWindDown(){
+    if (!S.settings.windOn) return false;
+    const n = now.getHours() * 60 + now.getMinutes(), s = toMin(S.settings.windStart), e = toMin(S.settings.windEnd);
+    return s === e ? false : s < e ? n >= s && n < e : n >= s || n < e;
+  }
+  function renderWind(){
+    const on = inWindDown();
+    $('wind').hidden = !on;
+    if (on) $('wind-s').textContent = 'Until ' + S.settings.windEnd + '. A good moment to put the phone down.';
+  }
   function renderDays(){
     const box = $('days'); box.innerHTML = '';
     lastN(7).forEach(k => {
@@ -1243,7 +1384,6 @@ footer strong{color:var(--ink)}
       box.appendChild(b);
     });
   }
-
   function renderRing(){
     const C = 2 * Math.PI * 52, bar = $('ring-bar');
     bar.style.strokeDasharray = C;
@@ -1266,15 +1406,19 @@ footer strong{color:var(--ink)}
     else if (over){ st.textContent = cap(dayLabel(selKey)) + ' didn\'t go to plan. ' + (selKey === todayKey ? 'Tomorrow' : 'Today') + ' is a fresh start.'; st.className = 'status soft'; }
     else { st.textContent = g - m > 0 ? 'You reclaimed ' + hm(g - m) + ' ' + dayLabel(selKey) + '.' : 'Right on target ' + dayLabel(selKey) + '.'; st.className = 'status good'; }
   }
-
   function renderToday(){
     const list = insights();
     $('dash-insight').textContent = list.length ? list[dayIndex % list.length] : insightNeed() || 'Keep logging to see your patterns.';
     $('ch-text').textContent = CHALLENGES[(dayIndex * 7) % CHALLENGES.length];
     $('ch-done').checked = !!entry(todayKey).done;
     $('ch-msg').textContent = entry(todayKey).done ? 'Done. Another phone-free moment.' : '';
+    const t = TIPS[dayIndex % TIPS.length];
+    $('tip-text').textContent = t[0]; $('tip-more').textContent = t[1];
+    const f = entry(todayKey).focus || 0;
+    $('focus-total').textContent = f + ' phone-free minute' + (f === 1 ? '' : 's') + ' today';
   }
 
+  // ---------- render: progress ----------
   let wkOffset = 0;
   function renderWeek(){
     const keys = weekKeys(wkOffset), w = weekStats(keys), p = weekStats(weekKeys(wkOffset - 1));
@@ -1299,7 +1443,6 @@ footer strong{color:var(--ink)}
     } else if (w.logged) cmp = 'A comparison with the week before appears when both weeks have at least 3 logged days.';
     $('wk-compare').textContent = cmp;
   }
-
   function renderBeforeNow(){
     const b = S.settings.baseline, a = recentAvg();
     $('bn-before').textContent = hm(b);
@@ -1314,7 +1457,74 @@ footer strong{color:var(--ink)}
       $('bn-est').textContent = 'Small changes add up. Try a target just 15 minutes lower.';
     }
   }
-
+  // month calendar with a day editor
+  let calOffset = 0, edKey = null;
+  function renderCalendar(){
+    const first = new Date(now.getFullYear(), now.getMonth() + calOffset, 1, 12);
+    const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+    $('cal-h').textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    $('cal-next').disabled = calOffset >= 0;
+    const cal = $('cal'); cal.innerHTML = '';
+    ['M','T','W','T','F','S','S'].forEach(l => { const d = document.createElement('div'); d.className = 'wdh'; d.textContent = l; cal.appendChild(d); });
+    for (let i = 0; i < (first.getDay() + 6) % 7; i++){ const p = document.createElement('div'); p.className = 'pad'; cal.appendChild(p); }
+    const monthKeys = [];
+    for (let d = 1; d <= days; d++){
+      const k = keyOf(new Date(first.getFullYear(), first.getMonth(), d, 12)); monthKeys.push(k);
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.k = k;
+      b.innerHTML = '<span>' + d + '</span><small>' + (logged(k) ? hm(entry(k).mins) : '') + '</small>';
+      if (logged(k)) b.classList.add(under(k) ? 'ok' : 'over');
+      if (k === todayKey) b.classList.add('today');
+      if (k === edKey) b.classList.add('sel');
+      if (k > todayKey) b.disabled = true;
+      b.setAttribute('aria-label', longDate(k) + (logged(k) ? ', ' + hm(entry(k).mins) + (under(k) ? ', under target' : ', above target') : ', not logged'));
+      cal.appendChild(b);
+    }
+    const s = weekStats(monthKeys);
+    $('cal-sum').textContent = s.logged
+      ? s.logged + (s.logged === 1 ? ' day' : ' days') + ' logged · ' + hm(s.reclaimed) + ' reclaimed · ' + s.under + ' under target'
+      : 'No days logged this month yet.';
+  }
+  $('cal').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) openEditor(b.dataset.k); });
+  $('cal-prev').addEventListener('click', () => { calOffset--; renderCalendar(); });
+  $('cal-next').addEventListener('click', () => { if (calOffset < 0){ calOffset++; renderCalendar(); } });
+  function openEditor(k){
+    edKey = k;
+    $('ed-h').textContent = longDate(k);
+    $('ed-h-in').value = logged(k) ? Math.floor(entry(k).mins / 60) : '';
+    $('ed-m-in').value = logged(k) ? entry(k).mins % 60 : '';
+    $('ed-note').value = entry(k).note || '';
+    $('ed-target').textContent = 'Target for this day: ' + hm(logged(k) ? dayGoal(k) : S.settings.goal) + (logged(k) ? ' · reclaimed ' + hm(reclaimedDay(k)) : '');
+    $('ed-clear').hidden = !logged(k);
+    $('ed').hidden = false; renderCalendar();
+    $('ed-h-in').focus({ preventScroll: true });
+  }
+  function closeEditor(){ edKey = null; $('ed').hidden = true; renderCalendar(); }
+  $('ed-close').addEventListener('click', closeEditor);
+  $('ed').addEventListener('submit', e => {
+    e.preventDefault();
+    const k = edKey; if (!k) return;
+    const hRaw = $('ed-h-in').value, mRaw = $('ed-m-in').value, note = $('ed-note').value.trim().slice(0, 80);
+    const prev = before(), e0 = { ...entry(k) };
+    if (hRaw === '' && mRaw === ''){
+      if (!note){ toast('Enter a time or a note to save this day.'); return; }
+    } else {
+      e0.mins = clamp((parseInt(hRaw, 10) || 0) * 60 + (parseInt(mRaw, 10) || 0), 0, 1440);
+      if (typeof e0.goal !== 'number') e0.goal = S.settings.goal;
+    }
+    if (note) e0.note = note; else delete e0.note;
+    S.days[k] = e0; persistDay(k);
+    if (k === selKey){ logDirty = false; syncLogInputs(); }
+    toast('Saved ' + shortDate(k) + '.');
+    closeEditor(); after(prev);
+  });
+  $('ed-clear').addEventListener('click', () => {
+    const k = edKey; if (!k) return;
+    const rest = { ...entry(k) }; delete rest.mins; delete rest.goal;
+    S.days[k] = rest; persistDay(k);
+    if (k === selKey){ logDirty = false; syncLogInputs(); }
+    toast('Cleared ' + shortDate(k) + '.'); closeEditor(); render();
+  });
   function renderRecords(){
     const r = records();
     document.querySelectorAll('#recs li').forEach(li => {
@@ -1324,14 +1534,12 @@ footer strong{color:var(--ink)}
       li.querySelector('small').textContent = !v ? '' : id === 'mostWeek' ? 'week of ' + shortDate(v.k) : id === 'longestStreak' ? 'ending ' + shortDate(v.k) : shortDate(v.k);
     });
   }
-
   function renderInsights(){
     const list = insights(), ul = $('ins-list');
     ul.innerHTML = '';
     list.forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
     $('ins-need').textContent = insightNeed();
   }
-
   function renderChart(){
     const W = 640, H = 220, L = 34, R = 8, T = 12, B = 40;
     const keys = lastN(14), real = keys.some(logged);
@@ -1350,7 +1558,7 @@ footer strong{color:var(--ink)}
       if (v == null) out += '<rect class="b-none" x="' + x + '" y="' + (y(0) - 3) + '" width="' + w + '" height="3" rx="1.5"/>';
       else {
         const cls = !real ? 'b-ex' : under(k) ? 'b-ok' : 'b-over';
-        out += '<rect class="' + cls + '" x="' + x + '" y="' + y(v) + '" width="' + w + '" height="' + (y(0) - y(v)) + '" rx="4"><title>' + k + ': ' + hm(v) + (real && under(k) && reclaimedDay(k) ? ', ' + hm(reclaimedDay(k)) + ' reclaimed' : '') + '</title></rect>';
+        out += '<rect class="' + cls + '" x="' + x + '" y="' + y(v) + '" width="' + w + '" height="' + (y(0) - y(v)) + '" rx="4"><title>' + k + ': ' + hm(v) + (real && reclaimedDay(k) ? ', ' + hm(reclaimedDay(k)) + ' reclaimed' : '') + '</title></rect>';
       }
       const cx = x + w / 2, t = k === todayKey ? ' class="strong"' : '';
       out += '<text' + t + ' x="' + cx + '" y="' + (H - 22) + '" text-anchor="middle">' + WD[d.getDay()][0] + '</text>';
@@ -1362,8 +1570,19 @@ footer strong{color:var(--ink)}
     $('chart').innerHTML = out;
     $('hist-badge').innerHTML = real ? '' : '<span class="example">Example data. Log a day to see yours.</span>';
   }
+  function renderNotes(){
+    const ks = Object.keys(S.days).filter(k => entry(k).note).sort().reverse().slice(0, 8), ul = $('notes');
+    ul.innerHTML = '';
+    ks.forEach(k => {
+      const li = document.createElement('li'), b = document.createElement('b'), s = document.createElement('span');
+      b.textContent = entry(k).note;
+      s.textContent = shortDate(k) + (reclaimedDay(k) ? ' · ' + hm(reclaimedDay(k)) + ' reclaimed' : '');
+      li.append(b, s); ul.appendChild(li);
+    });
+    $('notes-empty').hidden = ks.length > 0;
+  }
 
-  // life: 80 dots, built once, recoloured on change
+  // ---------- render: you ----------
   let lifeSel = null;
   (function buildLife(){
     const life = $('life');
@@ -1388,7 +1607,7 @@ footer strong{color:var(--ink)}
     if (yr === c.age) return 'Age ' + yr + ': this year. Today is a good place to start.';
     if (yr < c.age + c.onD) return 'Estimated screen time at your target, gathered into whole years.';
     if (yr < c.age + c.onD + c.wonD) return 'Estimated time reclaimed compared with when you started. Yours to spend.';
-    return 'Everything else: sleep aside, the rest of your waking life.';
+    return 'Everything else: the rest of your waking life.';
   }
   function renderLife(){
     const c = lifeCounts(), dots = $('life').children;
@@ -1405,48 +1624,44 @@ footer strong{color:var(--ink)}
     $('life').setAttribute('aria-label', '80 dots, one per year. ' + c.age + ' lived, about ' + c.onY.toFixed(1) + ' years on screens at your target, and about ' + c.wonY.toFixed(1) + ' years reclaimed.');
     if (lifeSel != null) $('life-info').textContent = lifeInfo(lifeSel);
   }
-
   let qOff = 0;
-  function renderDaily(){
-    const t = TIPS[dayIndex % TIPS.length];
-    $('tip-text').textContent = t[0]; $('tip-more').textContent = t[1];
-    const q = QUOTES[(dayIndex + qOff) % QUOTES.length];
-    $('q-text').textContent = q[0]; $('q-by').textContent = q[1];
-    const f = entry(todayKey).focus || 0;
-    $('focus-total').textContent = f + ' phone-free minute' + (f === 1 ? '' : 's') + ' today';
-  }
+  function renderQuote(){ const q = QUOTES[(dayIndex + qOff) % QUOTES.length]; $('q-text').textContent = q[0]; $('q-by').textContent = q[1]; }
 
   function render(){
     $('goal-lbl').textContent = hm(S.settings.goal);
-    renderLanding(); renderHeader(); renderHero(); renderDays(); renderRing(); renderToday(); renderWeek();
-    renderRewards(); renderBeforeNow(); renderRecords(); renderInsights(); renderChart(); renderLife(); renderDaily();
+    renderHome(); renderHeader(); renderHero(); renderWind(); renderDays(); renderRing(); renderToday();
+    renderWeek(); renderBeforeNow(); renderCalendar(); renderRecords(); renderInsights(); renderChart(); renderNotes();
+    renderRewards(); renderMilestones(); renderLife(); renderQuote();
   }
 
-  // ---------- log form ----------
+  // ---------- log form (Today) ----------
   let logDirty = false;
   const readMins = () => clamp((parseInt($('in-h').value, 10) || 0) * 60 + (parseInt($('in-m').value, 10) || 0), 0, 1440);
   function writeMins(m){ m = clamp(m, 0, 1440); $('in-h').value = Math.floor(m / 60); $('in-m').value = m % 60; }
-  function syncLogInputs(){ writeMins(logged(selKey) ? entry(selKey).mins : 0); updateSaveBtn(); }
+  function syncLogInputs(){ writeMins(logged(selKey) ? entry(selKey).mins : 0); $('in-note').value = entry(selKey).note || ''; updateSaveBtn(); }
   function syncSettingInputs(){
     const active = document.activeElement;
     const set = (id, v) => { if ($(id) !== active) $(id).value = v; };
     set('set-goal', S.settings.goal / 60); set('set-base', S.settings.baseline / 60); set('set-age', S.settings.age);
     set('goal-range', S.settings.goal / 60); set('l-goal', S.settings.goal / 60); set('life-goal', S.settings.goal / 60); set('l-now', S.settings.baseline / 60);
+    $('wd-on').checked = !!S.settings.windOn; set('wd-start', S.settings.windStart); set('wd-end', S.settings.windEnd);
   }
   function syncInputs(){ if (!logDirty) syncLogInputs(); syncSettingInputs(); }
   function updateSaveBtn(){
-    const same = logged(selKey) && readMins() === entry(selKey).mins;
+    const same = logged(selKey) && readMins() === entry(selKey).mins && $('in-note').value.trim() === (entry(selKey).note || '');
     $('save').disabled = same; $('save').textContent = same ? 'Saved' : 'Save';
   }
   function markDirty(){ logDirty = true; updateSaveBtn(); renderRing(); }
-  ['in-h','in-m'].forEach(id => $(id).addEventListener('input', markDirty));
+  ['in-h','in-m','in-note'].forEach(id => $(id).addEventListener('input', markDirty));
   ['in-h','in-m'].forEach(id => $(id).addEventListener('change', () => writeMins(readMins())));
   $('plus').addEventListener('click', () => { writeMins(readMins() + 15); markDirty(); });
   $('minus').addEventListener('click', () => { writeMins(readMins() - 15); markDirty(); });
   $('log-form').addEventListener('submit', e => {
     e.preventDefault();
-    const prev = before(), m = readMins(), g = S.settings.goal;
-    S.days[selKey] = { ...entry(selKey), mins: m, goal: g };
+    const prev = before(), m = readMins(), g = S.settings.goal, note = $('in-note').value.trim().slice(0, 80);
+    const e0 = { ...entry(selKey), mins: m, goal: g };
+    if (note) e0.note = note; else delete e0.note;
+    S.days[selKey] = e0;
     logDirty = false; persistDay(selKey);
     toast(m <= g ? (g - m > 0 ? 'Saved. You reclaimed ' + hm(g - m) + '.' : 'Saved. Right on target.') : 'Saved. ' + (selKey === todayKey ? 'Tomorrow' : 'Today') + ' is a fresh start.');
     after(prev); updateSaveBtn();
@@ -1481,11 +1696,24 @@ footer strong{color:var(--ink)}
     $('set-note').textContent = 'Count leisure screen time only, not work or school.';
     toast('Saved. Your target is ' + hm(S.settings.goal) + ' a day.');
   });
+  $('wd-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const s = $('wd-start').value, en = $('wd-end').value;
+    if (!s || !en || s === en){ toast('Choose a start and end time that are different.'); return; }
+    S.settings = { ...S.settings, windOn: $('wd-on').checked, windStart: s, windEnd: en };
+    persistSettings(); render();
+    toast(S.settings.windOn ? 'Wind-down reminder on, ' + s + ' to ' + en + '.' : 'Wind-down reminder off.');
+  });
+  $('wind-go').addEventListener('click', () => {
+    setPreset(25);
+    $('timer-card').scrollIntoView({ behavior: smooth(), block: 'center' });
+    if (!endAt) $('t-start').click();
+  });
   $('q-next').addEventListener('click', () => {
     qOff = (qOff + 1) % QUOTES.length;
     const bq = $('q-text');
-    if (reduceMotion){ renderDaily(); return; }
-    bq.style.opacity = 0; setTimeout(() => { renderDaily(); bq.style.opacity = 1; }, 180);
+    if (reduceMotion){ renderQuote(); return; }
+    bq.style.opacity = 0; setTimeout(() => { renderQuote(); bq.style.opacity = 1; }, 180);
   });
   $('wk-this').addEventListener('click', () => { wkOffset = 0; renderWeek(); });
   $('wk-last').addEventListener('click', () => { wkOffset = -1; renderWeek(); });
@@ -1494,11 +1722,12 @@ footer strong{color:var(--ink)}
   let len = 25, endAt = 0, tick = 0;
   const fmtT = s => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
   function setPreset(min){
+    if (endAt) return;
     len = min;
     document.querySelectorAll('#presets button').forEach(x => x.setAttribute('aria-pressed', String(Number(x.dataset.min) === min)));
     $('timer').textContent = fmtT(len * 60);
   }
-  document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => { if (!endAt) setPreset(Number(b.dataset.min)); }));
+  document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => setPreset(Number(b.dataset.min))));
   function timerUI(running){
     $('t-start').disabled = running; $('t-start').textContent = running ? 'Running' : 'Start';
     $('t-stop').disabled = !running;
@@ -1508,7 +1737,7 @@ footer strong{color:var(--ink)}
   function finishTimer(credit){
     const endedAt = endAt;
     clearInterval(tick); endAt = 0; safeSet(TIMER_KEY, null);
-    document.title = 'Look Up'; timerUI(false); $('timer').textContent = fmtT(len * 60);
+    document.title = currentTitle(); timerUI(false); $('timer').textContent = fmtT(len * 60);
     const sub = $('timer-sub');
     if (credit){
       const prev = before(), k = keyOf(new Date(endedAt)), e = entry(k);
@@ -1549,7 +1778,7 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- your data: export, import, delete ----------
-  const backupJSON = () => JSON.stringify({ app: 'look-up', version: 3, exportedAt: new Date().toISOString(), settings: S.settings, days: S.days, meta: S.meta }, null, 2);
+  const backupJSON = () => JSON.stringify({ app: 'look-up', version: 4, exportedAt: new Date().toISOString(), settings: S.settings, days: S.days, meta: S.meta }, null, 2);
   $('exp-btn').addEventListener('click', () => {
     const json = backupJSON();
     $('exp-text').value = json;
@@ -1609,39 +1838,47 @@ footer strong{color:var(--ink)}
       const months = [...new Set(Object.keys(S.days).map(k => k.slice(0, 7)))];
       ['settings', 'meta', ...months.map(m => 'm-' + m)].forEach(id => dbWrite('data/users/' + uid + '/' + id, null, true));
     }
-    if (endAt){ clearInterval(tick); endAt = 0; timerUI(false); setPreset(len); document.title = 'Look Up'; }
+    if (endAt){ clearInterval(tick); endAt = 0; timerUI(false); setPreset(len); }
     S = DEFAULTS(); safeSet(LS_KEY, null); safeSet(TIMER_KEY, null);
-    logDirty = false; lifeSel = null; syncInputs(); render();
+    logDirty = false; lifeSel = null; edKey = null; $('ed').hidden = true;
+    syncInputs(); render(); document.title = currentTitle();
     $('del-confirm').hidden = true;
     toast('All your data has been deleted.');
   });
 
-  // ---------- views ----------
-  function showView(v){
-    const to = $(v === 'app' ? 'app' : 'landing'), from = $(v === 'app' ? 'landing' : 'app');
-    from.hidden = true; to.hidden = false;
-    to.classList.remove('view'); void to.offsetWidth; to.classList.add('view');
-    $('nav-btn').textContent = v === 'app' ? 'About' : 'Open tracker';
-    $('nav-btn').dataset.to = v === 'app' ? 'landing' : 'app';
-    $('data-btn').hidden = v !== 'app';
+  // ---------- pages (#home, #today, #progress, #rewards, #you) ----------
+  let page = 'home';
+  const currentTitle = () => $('page-' + page).dataset.title;
+  function showPage(p, fromHash){
+    if (!PAGES.includes(p)) p = 'home';
+    page = p;
+    PAGES.forEach(x => { $('page-' + x).hidden = x !== p; });
+    const el = $('page-' + p);
+    el.classList.remove('page'); void el.offsetWidth; el.classList.add('page');
+    document.querySelectorAll('.tabs [data-nav], .tabbar [data-nav]').forEach(b => {
+      if (b.dataset.nav === p) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    if (!endAt) document.title = currentTitle();
+    if (!fromHash && location.hash.slice(1) !== p){ try { location.hash = p; } catch(e){} }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
-  $('nav-btn').addEventListener('click', e => showView(e.currentTarget.dataset.to));
-  $('to-landing').addEventListener('click', () => showView('landing'));
-  $('data-btn').addEventListener('click', () => $('data').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }));
-  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
-    if (b.dataset.go === 'calc') $('calc').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-    else showView('app');
-  }));
+  document.addEventListener('click', e => { const b = e.target.closest('[data-nav]'); if (b) showPage(b.dataset.nav); });
+  window.addEventListener('hashchange', () => { const p = location.hash.slice(1); if (PAGES.includes(p) && p !== page) showPage(p, true); });
+  $('to-calc').addEventListener('click', () => $('calc').scrollIntoView({ behavior: smooth(), block: 'start' }));
 
-  // ---------- midnight rollover ----------
-  function checkDay(){ if (refreshDate()){ if (!logDirty) syncLogInputs(); render(); } }
+  // ---------- clock: midnight rollover + wind-down reminder ----------
+  function checkDay(){
+    if (refreshDate()){ if (!logDirty) syncLogInputs(); render(); }
+    else { now = new Date(); renderWind(); }
+  }
   setInterval(checkDay, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkDay(); });
 
   // ---------- boot ----------
   loadLocal(); markMilestonesSilently(); setSync('local'); syncInputs(); render(); resumeTimer();
-  showView('landing'); // everyone starts on the title page
+  // a plain visit always opens the home page; a link to #today etc. opens that page
+  const startHash = location.hash.slice(1);
+  showPage(PAGES.includes(startHash) ? startHash : 'home', true);
   connect();
 })();
 </script>
