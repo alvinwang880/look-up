@@ -262,6 +262,32 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .cal button:disabled{opacity:.35}
 .cal .pad{visibility:hidden}
 .cal-sum{font-size:15px;color:var(--muted)}
+.cal button.st{box-shadow:inset 0 -4px 0 var(--accent)}
+.cal button.rs{box-shadow:inset 0 -4px 0 var(--accent);background:repeating-linear-gradient(135deg,var(--surface) 0 4px,var(--accent-soft) 4px 8px)}
+.cal button.today.st,.cal button.today.rs{box-shadow:inset 0 0 0 2px var(--ink),inset 0 -4px 0 var(--accent)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.cal-legend span::before{content:"";display:inline-block;width:16px;height:4px;border-radius:2px;background:var(--accent);margin-right:6px;vertical-align:3px}
+.cal-legend span.rest::before{background:repeating-linear-gradient(90deg,var(--accent) 0 3px,transparent 3px 5px)}
+/* streak card */
+.streak-top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.streak-num{font:800 clamp(48px,7vw,64px)/1 var(--display);color:var(--accent);letter-spacing:-.03em}
+.streak-num small{display:block;font:700 16px var(--body);color:var(--ink);letter-spacing:0;margin-top:4px}
+.streak-num.zero{color:var(--muted)}
+.streak-best{text-align:right;display:grid;gap:2px}
+.streak-best b{font:800 24px var(--display)}
+.streak-best span{font-size:13px;color:var(--muted)}
+.sdots{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:5px}
+.sdots i{aspect-ratio:1;border-radius:50%;background:var(--track);display:block}
+.sdots i.ok{background:var(--accent)}
+.sdots i.rest{background:transparent;box-shadow:inset 0 0 0 2px var(--accent)}
+.sdots i.over{background:var(--screen-soft)}
+.sdots i.today{outline:2px solid var(--ink);outline-offset:2px}
+.sdots-l{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:-8px}
+.streak-msg{font:800 18px/1.35 var(--display)}
+.streak-meta{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.streak-meta b{color:var(--ink)}
+.streak-meta .pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin-left:4px}
+.streak-meta .pill.used{background:var(--track);color:var(--muted)}
 .editor{border:1px solid var(--rule);border-radius:14px;padding:16px;background:var(--bg);display:grid;gap:12px}
 .editor h3{font-size:18px}
 .recs{display:grid;list-style:none;padding:0;margin:0}
@@ -540,7 +566,22 @@ footer strong{color:var(--ink)}
         </div>
       </section>
 
-      <section class="card c5" aria-labelledby="today-h">
+      <section class="card c5" id="streak-card" aria-labelledby="streak-h">
+        <div class="card-head"><p class="label" id="streak-h">Your streak</p><span class="sub-muted" id="streak-next"></span></div>
+        <div class="streak-top">
+          <div class="streak-num num" id="streak-num">0<small>days under target</small></div>
+          <div class="streak-best num"><b id="streak-best">–</b><span>best streak</span></div>
+        </div>
+        <div class="sdots" id="sdots" aria-label="Last 14 days"></div>
+        <div class="sdots-l"><span>14 days ago</span><span>today</span></div>
+        <p class="streak-msg" id="streak-msg" role="status"></p>
+        <div class="streak-meta">
+          <p id="streak-rest"></p>
+          <p id="streak-log"></p>
+        </div>
+      </section>
+
+      <section class="card c7" aria-labelledby="today-h">
         <p class="label" id="today-h">Today</p>
         <p class="insight-line" id="dash-insight"></p>
         <div class="divider"></div>
@@ -569,7 +610,7 @@ footer strong{color:var(--ink)}
         <p class="focus-total num" id="focus-total">0 phone-free minutes today</p>
       </section>
 
-      <section class="card c7 tip" aria-labelledby="tip-h">
+      <section class="card c12 tip" aria-labelledby="tip-h">
         <p class="label" id="tip-h">Tip of the day</p>
         <p class="text" id="tip-text"></p>
         <p class="more" id="tip-more"></p>
@@ -627,6 +668,7 @@ footer strong{color:var(--ink)}
         </div>
         <div class="cal num" id="cal" role="grid" aria-labelledby="cal-h"></div>
         <p class="cal-sum" id="cal-sum"></p>
+        <p class="cal-legend"><span>Part of a streak</span><span class="rest">Rest day (streak kept)</span></p>
         <form class="editor" id="ed" hidden autocomplete="off">
           <h3 id="ed-h"></h3>
           <div class="row">
@@ -944,7 +986,7 @@ footer strong{color:var(--ink)}
   const DEFAULTS = () => ({
     settings: { goal: 180, baseline: 300, age: 20, windOn: false, windStart: '22:00', windEnd: '07:00' },
     days: {},
-    meta: { milestones: [], rewards: [] }
+    meta: { milestones: [], rewards: [], streakMs: [] }
   });
   let S = DEFAULTS();
   const LS_KEY = 'lookup-v2', TIMER_KEY = 'lookup-timer';
@@ -964,6 +1006,7 @@ footer strong{color:var(--ink)}
     };
     if (!Array.isArray(out.meta.milestones)) out.meta.milestones = [];
     if (!Array.isArray(out.meta.rewards)) out.meta.rewards = [];
+    if (!Array.isArray(out.meta.streakMs)) out.meta.streakMs = [];
     // older logs didn't store their target: pin them so history doesn't shift when the target changes
     Object.keys(out.days).forEach(k => { const e = out.days[k]; if (e && typeof e.mins === 'number' && typeof e.goal !== 'number') e.goal = out.settings.goal; });
     return out;
@@ -1076,12 +1119,45 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- calculations ----------
-  function streakEnding(k){
-    let d = dateOf(k), n = 0;
-    for (;;){ const kk = keyOf(d); if (!under(kk)) break; n++; d = addDays(d, -1); }
-    return n;
+  // ---------- streaks ----------
+  // Under-target streak with one rest day per Mon–Sun week: a single day over target (or not logged)
+  // keeps the streak alive; a second one in the same week ends it. Rest days don't add to the count.
+  const STREAK_MS = [
+    [3,   'Three days in a row. A habit is starting.'],
+    [7,   'A full week of choosing your time.'],
+    [14,  'Two weeks in a row. This is starting to feel normal.'],
+    [30,  'A whole month under target. That\'s a real change.'],
+    [60,  'Two months. Your time is yours again.'],
+    [100, 'One hundred days, and every one of them your choice.']
+  ];
+  function streakInfo(){
+    const res = { current: 0, best: 0, bestEnd: null, inStreak: new Set(), rest: new Set(), lastEnded: null, curRests: [], logging: 0 };
+    let n = 0, e = logged(todayKey) ? now : addDays(now, -1);
+    while (logged(keyOf(e))){ n++; e = addDays(e, -1); }
+    res.logging = n;
+    const ks = loggedKeys(); if (!ks.length) return res;
+    let d = dateOf(ks[0]), count = 0, rests = new Set(), days = [], restDays = [], lastUnder = null;
+    const finish = () => {
+      if (count > res.best){ res.best = count; res.bestEnd = lastUnder; }
+      if (count >= 2){ days.forEach(k => res.inStreak.add(k)); restDays.forEach(k => res.rest.add(k)); }
+    };
+    const end = dateOf(todayKey);
+    while (d <= end){
+      const k = keyOf(d);
+      if (k === todayKey && !logged(k)) break; // today is still open
+      if (under(k)){ count++; days.push(k); lastUnder = k; }
+      else if (count > 0){
+        const wk = keyOf(mondayOf(d));
+        if (!rests.has(wk)){ rests.add(wk); restDays.push(k); }
+        else { finish(); res.lastEnded = { len: count, endKey: k }; count = 0; rests = new Set(); days = []; restDays = []; }
+      }
+      d = addDays(d, 1);
+    }
+    finish();
+    res.current = count; res.curRests = count ? restDays : []; res.curRestWeeks = count ? rests : new Set();
+    return res;
   }
-  const currentStreak = () => streakEnding(logged(todayKey) ? todayKey : yesterdayKey());
+  const currentStreak = () => streakInfo().current;
   const lifetimeReclaimed = () => sum(loggedKeys().map(reclaimedDay));
   function weekStats(keys){
     const lk = keys.filter(logged);
@@ -1107,13 +1183,8 @@ footer strong{color:var(--ink)}
     if (ks.length){
       const best = ks.reduce((a, k) => entry(k).mins < entry(a).mins ? k : a, ks[0]);
       r.bestDay = { v: entry(best).mins, k: best };
-      let run = 0, bestRun = 0, bestEnd = null, prev = null;
-      ks.forEach(k => {
-        if (under(k)){ run = prev && keyOf(addDays(dateOf(prev), 1)) === k && under(prev) ? run + 1 : 1; if (run > bestRun){ bestRun = run; bestEnd = k; } }
-        else run = 0;
-        prev = k;
-      });
-      if (bestRun) r.longestStreak = { v: bestRun, k: bestEnd };
+      const si = streakInfo();
+      if (si.best) r.longestStreak = { v: si.best, k: si.bestEnd };
       const md = ks.reduce((a, k) => reclaimedDay(k) > reclaimedDay(a) ? k : a, ks[0]);
       if (reclaimedDay(md) > 0) r.mostDay = { v: reclaimedDay(md), k: md };
       const weeks = {};
@@ -1172,11 +1243,16 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- after an action: milestones, rewards, personal bests ----------
+  function markStreakMsSilently(){
+    const b = streakInfo().best;
+    STREAK_MS.forEach(([n]) => { if (b >= n && !S.meta.streakMs.includes(n)) S.meta.streakMs.push(n); });
+  }
   function markMilestonesSilently(){
     const hrs = lifetimeReclaimed() / 60;
     MILESTONES.forEach(([h]) => { if (hrs >= h && !S.meta.milestones.includes(h)) S.meta.milestones.push(h); });
+    markStreakMsSilently();
   }
-  const before = () => ({ rec: records() });
+  const before = () => ({ rec: records(), streak: streakInfo().current });
   function after(prev){
     let metaChanged = false;
     const hrs = lifetimeReclaimed() / 60;
@@ -1187,6 +1263,16 @@ footer strong{color:var(--ink)}
       celebrate('Milestone', h + ' HOURS RECLAIMED', line);
       metaChanged = true;
     }
+    // streak milestones: each shown once, biggest first if several
+    const sNow = streakInfo().current;
+    const sFresh = STREAK_MS.filter(([n]) => sNow >= n && !S.meta.streakMs.includes(n));
+    if (sFresh.length){
+      sFresh.forEach(([n]) => S.meta.streakMs.push(n));
+      const [n, line] = sFresh[sFresh.length - 1];
+      celebrate('Streak', n + ' DAYS UNDER TARGET', line);
+      metaChanged = true;
+    }
+    if (prev.streak >= 2 && sNow === 0) toast('Your streak ended at ' + prev.streak + ' days. That\'s still ' + prev.streak + ' days you chose. Start again today.');
     S.meta.rewards.forEach(r => {
       const p = rewardProgress(r);
       if (p.done && r.celebrated !== p.period){
@@ -1385,6 +1471,44 @@ footer strong{color:var(--ink)}
     $('wind').hidden = !on;
     if (on) $('wind-s').textContent = 'Until ' + S.settings.windEnd + '. A good moment to put the phone down.';
   }
+  function renderStreak(){
+    const si = streakInfo(), cur = si.current, g = S.settings.goal;
+    const num = $('streak-num');
+    num.className = 'streak-num num' + (cur ? '' : ' zero');
+    num.innerHTML = cur + '<small>' + (cur === 1 ? 'day' : 'days') + ' under target</small>';
+    $('streak-best').textContent = si.best ? si.best + (si.best === 1 ? ' day' : ' days') : '–';
+    const nx = STREAK_MS.find(([n]) => n > cur);
+    $('streak-next').textContent = nx && cur ? 'Next: ' + nx[0] + ' days' : '';
+    const box = $('sdots'); box.innerHTML = '';
+    const curRests = new Set(si.curRests);
+    lastN(14).forEach(k => {
+      const i = document.createElement('i');
+      if (under(k)) i.className = 'ok';
+      else if (si.rest.has(k) || curRests.has(k)) i.className = 'rest';
+      else if (logged(k)) i.className = 'over';
+      if (k === todayKey) i.classList.add('today');
+      i.title = cap(dayLabel(k)) + ': ' + (under(k) ? 'under target' : (si.rest.has(k) || curRests.has(k)) ? 'rest day' : logged(k) ? 'above target' : 'not logged');
+      box.appendChild(i);
+    });
+    let msg;
+    if (cur > 0){
+      if (!logged(todayKey)) msg = 'Log today under ' + hm(g) + ' to make it ' + (cur + 1) + '.';
+      else if (under(todayKey)) msg = 'Today counts. Come back tomorrow to make it ' + (cur + 1) + '.';
+      else msg = 'Today is a rest day. Your streak is safe.';
+    } else if (si.lastEnded && si.lastEnded.len >= 2 && si.lastEnded.endKey >= keyOf(addDays(now, -7))){
+      msg = 'Your streak ended at ' + si.lastEnded.len + ' days. That\'s still ' + si.lastEnded.len + ' days you chose. Start again today.';
+    } else msg = 'Log a day under your target to start a streak.';
+    $('streak-msg').textContent = msg;
+    const wk = keyOf(mondayOf(now));
+    const usedThisWeek = cur > 0 && si.curRestWeeks.has(wk);
+    const usedKey = si.curRests.find(k => keyOf(mondayOf(dateOf(k))) === wk);
+    $('streak-rest').innerHTML = 'Rest day this week' + (usedThisWeek
+      ? '<span class="pill used">used ' + esc(usedKey ? WD[dateOf(usedKey).getDay()] : '') + '</span>'
+      : '<span class="pill">available</span>') + '<br>One off day a week won\'t break your streak.';
+    $('streak-log').innerHTML = si.logging
+      ? 'You\'ve logged <b>' + si.logging + (si.logging === 1 ? ' day' : ' days') + '</b> in a row. Showing up counts too.'
+      : 'Log today or yesterday to start a logging streak.';
+  }
   function renderDays(){
     const box = $('days'); box.innerHTML = '';
     lastN(7).forEach(k => {
@@ -1482,6 +1606,7 @@ footer strong{color:var(--ink)}
     $('cal-h').textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     $('cal-next').disabled = calOffset >= 0;
     const cal = $('cal'); cal.innerHTML = '';
+    const si = streakInfo();
     ['M','T','W','T','F','S','S'].forEach(l => { const d = document.createElement('div'); d.className = 'wdh'; d.textContent = l; cal.appendChild(d); });
     for (let i = 0; i < (first.getDay() + 6) % 7; i++){ const p = document.createElement('div'); p.className = 'pad'; cal.appendChild(p); }
     const monthKeys = [];
@@ -1491,6 +1616,8 @@ footer strong{color:var(--ink)}
       b.type = 'button'; b.dataset.k = k;
       b.innerHTML = '<span>' + d + '</span><small>' + (logged(k) ? hm(entry(k).mins) : '') + '</small>';
       if (logged(k)) b.classList.add(under(k) ? 'ok' : 'over');
+      if (si.inStreak.has(k)) b.classList.add('st');
+      else if (si.rest.has(k)) b.classList.add('rs');
       if (k === todayKey) b.classList.add('today');
       if (k === edKey) b.classList.add('sel');
       if (k > todayKey) b.disabled = true;
@@ -1652,7 +1779,7 @@ footer strong{color:var(--ink)}
 
   function render(){
     $('goal-lbl').textContent = hm(S.settings.goal);
-    renderHome(); renderHeader(); renderHero(); renderWind(); renderDays(); renderRing(); renderToday();
+    renderHome(); renderHeader(); renderHero(); renderWind(); renderStreak(); renderDays(); renderRing(); renderToday();
     renderWeek(); renderBeforeNow(); renderCalendar(); renderRecords(); renderInsights(); renderChart(); renderNotes();
     renderRewards(); renderMilestones(); renderLife(); renderQuote();
   }
