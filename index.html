@@ -10,11 +10,22 @@
 <meta property="og:title" content="Look Up: spend less time on your phone, see what you get back">
 <meta property="og:description" content="Free and private. Log your daily screen time, set a target, keep a streak and watch the time you reclaim add up. No account needed.">
 <meta property="og:url" content="https://lookup-screentime.vercel.app/">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://lookup-screentime.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Look Up: You didn't lose screen time. You gained your time back.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://lookup-screentime.vercel.app/og-image.png">
 <meta name="twitter:title" content="Look Up: spend less time on your phone">
 <meta name="twitter:description" content="Free and private. Log your screen time, keep a streak, and see the hours you reclaim.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231E7A4C'/%3E%3Cpath d='M20 38l12-12 12 12' fill='none' stroke='%23fff' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="canonical" href="https://lookup-screentime.vercel.app/">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Look Up">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Look Up</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -533,7 +544,7 @@ footer strong{color:var(--ink)}
         <div class="qstats">
           <div class="qs"><b class="num" id="qs-screen">–</b><span id="qs-screen-l">Screen time</span></div>
           <div class="qs"><b class="num" id="qs-target">3h</b><span>Daily target</span></div>
-          <div class="qs"><b class="num" id="qs-streak">0</b><span id="qs-streak-l">days in a row under target</span></div>
+          <div class="qs"><b class="num" id="qs-free">0m</b><span>phone-free today</span></div>
           <div class="qs"><b class="num" id="qs-week">0 / 0</b><span>days under target this week</span></div>
           <div class="qs wide"><span>This week</span><div class="wdots" id="wdots" role="img" aria-label="This week"></div></div>
         </div>
@@ -956,13 +967,33 @@ footer strong{color:var(--ink)}
     ['Log out of one app on your phone.', 'Having to type a password gives you a moment to decide if you really want to open it.'],
     ['Make the first hour of your day screen-free.', 'People who start with their phone often find it harder to stop later.'],
     ['Use a real watch.', 'Checking the time is one of the most common reasons people unlock their phone.'],
-    ['Leave your phone behind on short trips.', 'A walk to the shop is a good way to get used to not having it.']
+    ['Leave your phone behind on short trips.', 'A walk to the shop is a good way to get used to not having it.'],
+    ['Keep your phone out of sight while you work.', 'Even a phone lying face down on the desk can pull your attention back to it.'],
+    ['Turn off autoplay.', 'Most video apps let you stop the next video starting on its own. Ending on purpose is easier than stopping mid-scroll.'],
+    ['Unfollow accounts that leave you feeling worse.', 'A smaller, kinder feed is easier to put down.'],
+    ['Pick a phone-free spot at home.', 'The dinner table or your bed are good places to start.'],
+    ['Batch your messages.', 'Check and reply two or three times a day instead of the moment each one arrives.'],
+    ['Make your phone a little harder to reach.', 'A drawer or another room adds just enough effort to stop an automatic pick-up.'],
+    ['Have something ready to do instead.', 'A book on the sofa or a guitar by the bed makes the switch easier.'],
+    ['Silence group chats you don\'t need right now.', 'You can still read them later, on your terms.'],
+    ['Use a lock screen reminder.', 'Set your lock screen to a short question like "Why am I picking this up?"'],
+    ['Watch on a bigger screen, together.', 'Shows on a TV with others tend to end; solo scrolling rarely does.'],
+    ['Use Do Not Disturb by default.', 'Allow calls from favourites, and let everything else wait.'],
+    ['Set a stop time for the evening.', 'Pick a time, like 9:30 pm, after which the phone goes on charge for the night.'],
+    ['Take your first break of the day without a screen.', 'Look out of a window, stretch or make a drink instead.'],
+    ['Delete apps you can use in a browser.', 'Using them in a browser is clunkier, which naturally means less time in them.'],
+    ['Plan your weekend offline.', 'Decide one thing you\'ll do without your phone before the weekend starts.'],
+    ['Charge your phone away from the sofa.', 'Out of reach is often out of mind.'],
+    ['Notice your trigger moments.', 'Boredom, waiting and avoiding work are the usual ones. Spotting them is half the change.'],
+    ['Put reading apps on your home screen.', 'If you do pick up your phone, make the easiest thing a good one.'],
+    ['Count your pick-ups, not just your hours.', 'Screen Time and Digital Wellbeing both show how often you unlock your phone.'],
+    ['Celebrate the time, not the streak.', 'Even a day over target can have a phone-free hour worth being proud of.']
   ];
   const QUOTES = [
     ['How we spend our days is, of course, how we spend our lives.', 'Annie Dillard'],
     ['Almost everything will work again if you unplug it for a few minutes, including you.', 'Anne Lamott'],
     ['Lost time is never found again.', 'Benjamin Franklin'],
-    ['Time is what we want most, but what we use worst.', 'William Penn'],
+    ['Time is what we want most, but what, alas! we use worst.', 'William Penn, Some Fruits of Solitude'],
     ['You will never find time for anything. If you want time you must make it.', 'Charles Buxton'],
     ['Wherever you are, be all there.', 'Jim Elliot'],
     ['We are what we repeatedly do.', 'Will Durant, on Aristotle'],
@@ -1210,7 +1241,6 @@ footer strong{color:var(--ink)}
     res.current = count; res.curRests = count ? restDays : []; res.curRestWeeks = count ? rests : new Set();
     return res;
   }
-  const currentStreak = () => streakInfo().current;
   const lifetimeReclaimed = () => sum(loggedKeys().map(reclaimedDay));
   function weekStats(keys){
     const lk = keys.filter(logged);
@@ -1471,9 +1501,14 @@ footer strong{color:var(--ink)}
     $('today-date').textContent = now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
     const h = now.getHours();
     $('greet-h').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + '.';
-    $('greet-p').textContent = h < 17
-      ? 'Log yesterday\'s total from Screen Time or Digital Wellbeing, then see what you reclaimed.'
-      : 'Log today\'s total before bed, and take on today\'s challenge if you haven\'t yet.';
+    const doneCh = !!entry(todayKey).done;
+    let line;
+    if (logged(todayKey)) line = doneCh ? 'Today\'s logged and your challenge is done. Enjoy the rest of your day.' : 'Today\'s logged. Try today\'s challenge if you haven\'t yet.';
+    else if (h < 17) line = logged(yesterdayKey())
+      ? (doneCh ? 'Yesterday\'s logged and today\'s challenge is done. Nice start.' : 'Yesterday\'s logged. Try today\'s challenge.')
+      : 'Log yesterday\'s total from Screen Time or Digital Wellbeing, then see what you reclaimed.';
+    else line = 'Log today\'s total before bed, and take on today\'s challenge if you haven\'t yet.';
+    $('greet-p').textContent = line;
   }
   function renderHero(){
     const hk = logged(todayKey) ? todayKey : logged(yesterdayKey()) ? yesterdayKey() : null;
@@ -1501,9 +1536,7 @@ footer strong{color:var(--ink)}
     $('qs-screen').textContent = hk ? hm(entry(hk).mins) : '–';
     $('qs-screen-l').textContent = hk ? 'Screen time ' + dayLabel(hk) : 'Screen time';
     $('qs-target').textContent = hm(S.settings.goal);
-    const st = currentStreak();
-    $('qs-streak').textContent = st;
-    $('qs-streak-l').textContent = (st === 1 ? 'day' : 'days') + ' in a row under target';
+    $('qs-free').textContent = hm(entry(todayKey).focus || 0);
     $('qs-week').textContent = wk.under + ' / ' + wk.logged;
     const wd = $('wdots'); wd.innerHTML = '';
     const wt = { u: 0, o: 0, n: 0 };
@@ -1551,7 +1584,8 @@ footer strong{color:var(--ink)}
     });
     const parts = [tally.u + ' under', tally.r ? tally.r + ' rest' : '', tally.o ? tally.o + ' over' : ''].filter(Boolean);
     $('sdots-sum').textContent = parts.join(' · ');
-    box.setAttribute('aria-label', 'Last 14 days: ' + tally.u + ' under target, ' + tally.r + ' rest days, ' + tally.o + ' over target, ' + tally.n + ' not logged');
+    const pl = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    box.setAttribute('aria-label', 'Last 14 days: ' + tally.u + ' under target, ' + pl(tally.r, 'rest day') + ', ' + tally.o + ' over target, ' + tally.n + ' not logged');
     let msg;
     if (cur > 0){
       if (!logged(todayKey) && !logged(yesterdayKey())) msg = 'Log yesterday to keep your streak going.';
@@ -1892,7 +1926,7 @@ footer strong{color:var(--ink)}
   });
   $('ch-done').addEventListener('change', e => {
     S.days[todayKey] = { ...entry(todayKey), done: e.target.checked };
-    persistDay(todayKey); renderToday(); renderWeek(); renderInsights();
+    persistDay(todayKey); renderHeader(); renderToday(); renderWeek(); renderInsights();
   });
 
   // ---------- target sliders: four controls, one value ----------
@@ -2008,15 +2042,25 @@ footer strong{color:var(--ink)}
     const json = backupJSON();
     $('exp-text').value = json;
     $('imp-box').hidden = true; $('del-confirm').hidden = true; $('exp-box').hidden = false;
+    saveBackup(json, 'look-up-backup-' + todayKey + '.json');
+  });
+  async function saveBackup(json, filename){
+    // inside claude.ai, files go through its download prompt; on the website, a normal browser download
+    const dl = window.claude && window.claude.use ? await window.claude.use('downloads').catch(() => null) : null;
+    if (dl){
+      try { await dl.save({ filename, data: json }); toast('Backup saved.'); }
+      catch(err){ toast(err && err.code === 'declined' ? 'Download cancelled. You can still copy the backup below.' : 'Couldn\'t download here. Copy the backup below instead.'); }
+      return;
+    }
     try {
       const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
       const a = document.createElement('a');
-      a.href = url; a.download = 'look-up-backup-' + todayKey + '.json';
+      a.href = url; a.download = filename;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
-    } catch(e){}
-    toast('Backup ready.');
-  });
+      toast('Backup ready.');
+    } catch(e){ toast('Copy the backup below to keep it.'); }
+  }
   $('exp-copy').addEventListener('click', () => {
     const t = $('exp-text');
     const fallback = () => { t.focus(); t.select(); toast('Selected. Press Ctrl+C or Cmd+C to copy.'); };
