@@ -323,6 +323,14 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .streak-meta b{color:var(--ink)}
 .streak-meta .pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);margin-left:4px}
 .streak-meta .pill.used{background:var(--track);color:var(--muted)}
+.rest-box{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--accent-soft);border:1px solid var(--accent);border-radius:14px;padding:12px 14px;transition:background .3s,border-color .3s}
+.rest-box.used{background:var(--bg);border-color:var(--rule)}
+.rest-box.off{background:var(--bg);border-color:var(--rule);border-style:dashed}
+.rest-ring{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 3px var(--accent);margin-top:2px}
+.rest-box.used .rest-ring{background:var(--accent);box-shadow:none}
+.rest-box.off .rest-ring{box-shadow:inset 0 0 0 3px var(--rule)}
+.rest-h{font:800 17px/1.3 var(--display)}
+.rest-p{font-size:14px;color:var(--muted);margin-top:2px}
 .editor{border:1px solid var(--rule);border-radius:14px;padding:16px;background:var(--bg);display:grid;gap:12px}
 .editor h3{font-size:18px}
 .recs{display:grid;list-style:none;padding:0;margin:0}
@@ -626,8 +634,14 @@ footer strong{color:var(--ink)}
         <div class="sdots" id="sdots" role="img" aria-label="Last 14 days"></div>
         <div class="sdots-l"><span>14 days ago</span><span id="sdots-sum"></span><span>today</span></div>
         <p class="streak-msg" id="streak-msg" role="status"></p>
+        <div class="rest-box" id="rest-box">
+          <span class="rest-ring" aria-hidden="true"></span>
+          <div>
+            <p class="rest-h" id="rest-h">Rest day this week: available</p>
+            <p class="rest-p" id="rest-p"></p>
+          </div>
+        </div>
         <div class="streak-meta">
-          <p id="streak-rest"></p>
           <p id="streak-log"></p>
         </div>
       </section>
@@ -1615,9 +1629,21 @@ footer strong{color:var(--ink)}
     const wk = keyOf(mondayOf(now));
     const usedThisWeek = cur > 0 && si.curRestWeeks.has(wk);
     const usedKey = si.curRests.find(k => keyOf(mondayOf(dateOf(k))) === wk);
-    $('streak-rest').innerHTML = 'Rest day this week' + (usedThisWeek
-      ? '<span class="pill used">used ' + esc(usedKey ? WD[dateOf(usedKey).getDay()] : '') + '</span>'
-      : '<span class="pill">available</span>') + '<br>One off day a week won\'t break your streak.';
+    const rule = 'You get 1 free rest day every week (Monday to Sunday). If you go over your target or miss a day, it\'s used automatically and your streak is kept. A second off day in the same week ends the streak.';
+    const restBox = $('rest-box');
+    if (cur === 0){
+      restBox.className = 'rest-box off';
+      $('rest-h').textContent = 'Rest day: ready when you start a streak';
+      $('rest-p').textContent = rule;
+    } else if (usedThisWeek){
+      restBox.className = 'rest-box used';
+      $('rest-h').textContent = 'Rest day this week: used' + (usedKey ? ' on ' + WDL[dateOf(usedKey).getDay()] : '');
+      $('rest-p').textContent = 'Your streak was kept. Another off day before Monday would end it. A new rest day arrives on Monday.';
+    } else {
+      restBox.className = 'rest-box';
+      $('rest-h').textContent = 'Rest day this week: available';
+      $('rest-p').textContent = rule;
+    }
     $('streak-log').innerHTML = si.logging
       ? 'You\'ve logged <b>' + si.logging + (si.logging === 1 ? ' day' : ' days') + '</b> in a row. Showing up counts too.'
       : 'Log today or yesterday to start a logging streak.';
