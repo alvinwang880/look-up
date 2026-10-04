@@ -411,6 +411,10 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .set-note{font-size:14px;color:var(--muted)}
 .data-acts{display:flex;gap:8px;flex-wrap:wrap}
 .data-box textarea{width:100%;min-height:90px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);color:var(--ink);font:12px ui-monospace,Menlo,monospace;padding:10px}
+.tester{border-top:1px solid var(--rule);padding-top:12px}
+.tester summary{cursor:pointer;font-weight:700}
+.tester[open]{display:grid;gap:8px}
+.tester textarea{width:100%;min-height:230px;border:2px solid var(--rule);border-radius:10px;background:var(--bg);color:var(--ink);font:12px/1.5 ui-monospace,Menlo,monospace;padding:10px}
 .privacy{background:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--muted)}
 .privacy b{color:var(--ink)}
 .quote{background:var(--screen-soft);border-color:transparent;box-shadow:none}
@@ -903,6 +907,12 @@ footer strong{color:var(--ink)}
           <button type="button" class="small danger" id="del-yes">Yes, delete everything</button>
           <button type="button" class="small ghost" id="del-no">Cancel</button>
         </div>
+        <details class="tester" id="tester">
+          <summary>Taking part in a Look Up test?</summary>
+          <p class="set-note">Copy your tester summary and paste it into the feedback form. It's numbers only: no name, no notes, no exact times of day, and nothing is sent anywhere unless you paste it yourself.</p>
+          <textarea id="tester-text" readonly aria-label="Your tester summary"></textarea>
+          <div class="data-acts"><button type="button" class="small primary" id="tester-copy">Copy tester summary</button></div>
+        </details>
       </section>
 
       <section class="card c12 quote" aria-label="Quote">
@@ -1062,7 +1072,7 @@ footer strong{color:var(--ink)}
   const DEFAULTS = () => ({
     settings: { goal: 180, baseline: 300, age: 15, windOn: false, windStart: '22:00', windEnd: '07:00' },
     days: {},
-    meta: { milestones: [], rewards: [], streakMs: [] }
+    meta: { milestones: [], rewards: [], streakMs: [], shotReads: 0 }
   });
   let S = DEFAULTS();
   const LS_KEY = 'lookup-v2', TIMER_KEY = 'lookup-timer';
@@ -1108,6 +1118,7 @@ footer strong{color:var(--ink)}
     const m = out.meta;
     m.milestones = Array.isArray(m.milestones) ? m.milestones.filter(v => num(v, 1, 100000)) : [];
     m.streakMs = Array.isArray(m.streakMs) ? m.streakMs.filter(v => num(v, 1, 100000)) : [];
+    m.shotReads = num(m.shotReads, 0, 100000) ? Math.round(m.shotReads) : 0;
     m.rewards = Array.isArray(m.rewards) ? m.rewards.filter(r => r && typeof r.title === 'string' && r.title.trim() && num(r.mins, 1, 30000) && (r.period === 'week' || r.period === 'total'))
       .map(r => ({ ...r, id: String(r.id || 'r' + Math.random().toString(36).slice(2, 8)), title: r.title.trim().slice(0, 40), since: /^\d{4}-\d{2}-\d{2}$/.test(r.since) ? r.since : todayKey })) : [];
     return out;
@@ -2001,6 +2012,7 @@ footer strong{color:var(--ink)}
       if (mins == null){ shotMsg('Couldn\'t find a total in that one. Type it in instead, or try a clearer screenshot of the main Screen Time page.', 'bad'); return; }
       writeMins(mins); markDirty();
       ['in-h', 'in-m'].forEach(id => { const el = $(id); el.classList.add('found'); setTimeout(() => el.classList.remove('found'), 2500); });
+      S.meta.shotReads = (S.meta.shotReads || 0) + 1; persistMeta();
       shotMsg(res.average
         ? 'That looks like a week view, so this is your daily average: ' + hm(mins) + '. For one day, screenshot the day view instead. Check it, then press Save.'
         : 'Found ' + hm(mins) + '. Check it matches your screenshot, then press Save.', 'good');
@@ -2146,6 +2158,40 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- your data: export, import, delete ----------
+  function testerSummary(){
+    const ks = loggedKeys(), si = streakInfo(), a = recentAvg(), age = S.settings.age;
+    const first = ks[0];
+    const daysSince = first ? Math.round((dateOf(todayKey) - dateOf(first)) / 864e5) + 1 : 0;
+    const last14 = lastN(14).filter(logged).length;
+    const wk2 = first ? lastN(7).filter(logged).length : 0;
+    const all = Object.keys(S.days);
+    const band = !S.settings.ageSet && age === 15 ? 'not set' : age <= 15 ? '13–15' : age <= 18 ? '16–18' : 'adult';
+    const lines = [
+      'LOOK UP TESTER SUMMARY (numbers only)',
+      'Summary date: ' + todayKey,
+      'First day logged: ' + (first || 'none') + (first ? ' (' + daysSince + ' days ago, inclusive)' : ''),
+      'Days logged: ' + ks.length + ' total, ' + last14 + ' of the last 14, ' + wk2 + ' of the last 7',
+      'Still logging in the last 7 days: ' + (wk2 > 0 ? 'yes' : 'no'),
+      'Streak now / best: ' + si.current + ' / ' + si.best + ' days',
+      'Time reclaimed: ' + hm(lifetimeReclaimed()),
+      'Starting point / 7-day average: ' + hm(S.settings.baseline) + ' / ' + (a == null ? 'not enough data' : hm(a)),
+      'Daily target: ' + hm(S.settings.goal),
+      'Days with a "did instead" note: ' + all.filter(k => entry(k).note).length,
+      'Challenges done: ' + all.filter(k => entry(k).done).length,
+      'Phone-down sessions: ' + sum(all.map(k => entry(k).sessions || 0)),
+      'Screenshot reads: ' + (S.meta.shotReads || 0),
+      'Rewards set / milestones reached: ' + S.meta.rewards.length + ' / ' + S.meta.milestones.length,
+      'Wind-down reminder: ' + (S.settings.windOn ? 'on' : 'off'),
+      'Age group: ' + band
+    ];
+    return lines.join('\n');
+  }
+  $('tester').addEventListener('toggle', () => { if ($('tester').open) $('tester-text').value = testerSummary(); });
+  $('tester-copy').addEventListener('click', () => {
+    const t = $('tester-text'); t.value = testerSummary();
+    const fallback = () => { t.focus(); t.select(); toast('Selected. Press Ctrl+C or Cmd+C to copy.'); };
+    try { navigator.clipboard.writeText(t.value).then(() => toast('Tester summary copied. Paste it into the feedback form.'), fallback); } catch(e){ fallback(); }
+  });
   const backupJSON = () => JSON.stringify({ app: 'look-up', version: 4, exportedAt: new Date().toISOString(), settings: S.settings, days: S.days, meta: S.meta }, null, 2);
   $('exp-btn').addEventListener('click', () => {
     const json = backupJSON();
