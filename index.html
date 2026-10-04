@@ -138,7 +138,9 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .l-hero h1 em{font-style:normal;color:var(--screen)}
 .l-hero .lede{font-size:clamp(17px,2vw,20px);color:var(--muted);max-width:50ch;margin-top:18px}
 .source{font-size:13px;color:var(--muted);margin-top:10px}
-.source a{color:inherit}
+.source a,.source-inline a{color:inherit}
+.source-inline{font-size:13px;color:var(--muted)}
+.fam .cost{border-top-color:var(--accent)}
 .l-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
 .l-cta button,.l-final button{padding:13px 22px;font-size:17px}
 .phone{justify-self:center;width:min(260px,100%);aspect-ratio:9/17;border-radius:36px;border:10px solid var(--ink);background:var(--surface);position:relative;overflow:hidden;display:grid;place-content:center;text-align:center;padding:20px}
@@ -250,6 +252,8 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 @keyframes ripple{from{transform:scale(.4);opacity:.8}to{transform:scale(1.25);opacity:0}}
 .timer-sub{text-align:center;color:var(--muted);font-size:15px;min-height:1.5em}
 .timer-sub.good{color:var(--accent);font-weight:700}
+.presets button{display:grid;gap:1px;line-height:1.2;padding:8px 12px}
+.presets button small{font-size:11px;font-weight:400;color:var(--muted)}
 .presets,.timer-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .focus-total{text-align:center;font-weight:700;color:var(--accent)}
 .tip{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -454,17 +458,17 @@ footer strong{color:var(--ink)}
   <main class="page landing" id="page-home" data-title="Look Up">
     <section class="l-hero">
       <div>
-        <p class="label">A global habit · average per person</p>
-        <h1>The average person spends <em>nearly 7 hours</em> a day online.</h1>
-        <p class="lede">That's the daily average for internet users worldwide, across phones, computers and tablets. Apps are designed to keep us scrolling, so much of that time slips away without us choosing it. Look Up helps you take it back, one day at a time.</p>
-        <p class="source">Source: <a href="https://datareportal.com/reports/digital-2024-global-overview-report" target="_blank" rel="noopener">DataReportal, Digital 2024 Global Overview</a> (internet users aged 16–64).</p>
+        <p class="label">For teens · and the adults around them</p>
+        <h1>Teens spend <em>over 8½ hours</em> a day on screens.</h1>
+        <p class="lede">That's the daily average for 13–18 year olds, not counting schoolwork. Adults aren't far behind, at nearly 7 hours a day online. Apps are designed to keep everyone scrolling, so much of that time slips away without anyone choosing it. Look Up helps teens and their families take it back, one day at a time.</p>
+        <p class="source">Sources: <a href="https://www.commonsensemedia.org/sites/default/files/research/report/8-18-census-integrated-report-final-web_0.pdf" target="_blank" rel="noopener">Common Sense Census 2021</a> (ages 13–18, entertainment screen use) · <a href="https://datareportal.com/reports/digital-2024-global-overview-report" target="_blank" rel="noopener">DataReportal, Digital 2024</a> (internet users aged 16–64).</p>
         <div class="l-cta">
           <button type="button" class="primary" data-nav="today">Start tracking, it's free</button>
           <button type="button" id="to-calc">See what you could get back</button>
         </div>
       </div>
       <div class="phone" aria-hidden="true">
-        <div><b class="num">6h 40m</b><span>online per person, per day</span><div class="pickups">≈ 100 days a year</div><span>awake and looking at a screen</span></div>
+        <div><b class="num">8h 39m</b><span>teens on screens, per day, not counting schoolwork</span><div class="pickups">≈ 130 days a year</div><span>awake and looking at a screen</span></div>
       </div>
     </section>
 
@@ -472,9 +476,9 @@ footer strong{color:var(--ink)}
       <h2>What too much screen time takes from you</h2>
       <p class="sub">Screens are useful. The problem is the hours that go to endless feeds and autoplay, time we'd rarely choose to spend that way if we stopped to think.</p>
       <div class="costs">
-        <div class="cost"><h3>Sleep</h3><p>Late-night scrolling is linked to falling asleep later and sleeping worse, especially for teenagers.</p></div>
-        <div class="cost"><h3>Focus</h3><p>Constant notifications break concentration. Getting back into deep work after an interruption takes time.</p></div>
-        <div class="cost"><h3>People</h3><p>Time on a phone often comes out of time with friends and family, even when we're in the same room.</p></div>
+        <div class="cost"><h3>Sleep</h3><p>Teens need 8–10 hours a night and adults 7 or more. Late-night scrolling is linked to falling asleep later and sleeping worse. <span class="source-inline">(<a href="https://sleepeducation.org/how-much-sleep-do-i-really-need/" target="_blank" rel="noopener">American Academy of Sleep Medicine</a>)</span></p></div>
+        <div class="cost"><h3>Focus</h3><p>Notifications break concentration, whether it's homework, revision or work. Getting back on track after each interruption takes time.</p></div>
+        <div class="cost"><h3>People</h3><p>Time on a phone often comes out of time with friends and family, even at the same dinner table.</p></div>
       </div>
     </section>
 
@@ -516,9 +520,19 @@ footer strong{color:var(--ink)}
       </div>
     </section>
 
+    <section class="l-sec" id="families">
+      <h2>For parents and families</h2>
+      <p class="sub">Look Up is built for teens, and it works just as well for adults. It works best when the whole family does it together.</p>
+      <div class="costs fam">
+        <div class="cost"><h3>Do it together</h3><p>Everyone uses Look Up on their own phone with their own target. Compare time reclaimed, not screen time, and try a phone-free dinner as a family.</p></div>
+        <div class="cost"><h3>Not a monitoring tool</h3><p>Nobody can see anyone else's log. A teen's data stays on their own phone, so Look Up stays theirs.</p></div>
+        <div class="cost"><h3>Safe for under-18s</h3><p>No account, no email, no ads and no tracking. Nothing is collected or sent anywhere.</p></div>
+      </div>
+    </section>
+
     <section class="l-final">
       <h2>You didn't lose screen time. You gained your time back.</h2>
-      <p>Set a target, log yesterday, and see what you reclaim. No account, and your data stays on your device.</p>
+      <p>Set a target, log yesterday, and see what you reclaim. No account, no email, no tracking, and your data stays on your device.</p>
       <button type="button" class="primary" data-nav="today" id="l-final-btn">Start with a 3h target</button>
     </section>
   </main>
@@ -622,10 +636,10 @@ footer strong{color:var(--ink)}
       <section class="card c5" id="timer-card" aria-labelledby="focus-h">
         <div class="card-head"><h2 id="focus-h">Phone-down timer</h2><span class="label">Focus</span></div>
         <div class="presets" role="group" aria-label="Timer length" id="presets">
-          <button type="button" data-min="15">15 min</button>
-          <button type="button" data-min="25" aria-pressed="true">25 min</button>
-          <button type="button" data-min="45">45 min</button>
-          <button type="button" data-min="60">60 min</button>
+          <button type="button" data-min="15">15 min<small>Quick reset</small></button>
+          <button type="button" data-min="25" aria-pressed="true">25 min<small>Homework / focus</small></button>
+          <button type="button" data-min="45">45 min<small>Study / deep work</small></button>
+          <button type="button" data-min="60">60 min<small>Revision / project</small></button>
         </div>
         <div class="timer-wrap" id="timer-wrap"><div class="timer num" id="timer">25:00</div></div>
         <p class="timer-sub" id="timer-sub" role="status">Put your phone face down, start the timer, and do one thing.</p>
@@ -791,10 +805,10 @@ footer strong{color:var(--ink)}
             <div class="age-box" id="age-box">
               <label for="life-age"><span class="step">1</span> Start with your age</label>
               <div class="slide-row">
-                <input type="range" id="life-age" min="5" max="79" step="1" value="20">
+                <input type="range" id="life-age" min="13" max="79" step="1" value="15">
                 <output id="life-age-o" for="life-age" class="num">20</output>
               </div>
-              <p class="age-hint" id="age-hint">This is an example based on age 20. Move the slider to make it yours.</p>
+              <p class="age-hint" id="age-hint">This is an example based on age 15. Move the slider to make it yours.</p>
             </div>
             <p class="label"><span class="step">2</span> Your daily target</p>
             <h2 id="life-h">At this target, you could reclaim about <em id="life-days">0 days</em> of waking life every year.</h2>
@@ -824,10 +838,10 @@ footer strong{color:var(--ink)}
         <p class="set-note">Daily target: <b id="set-goal-t">3h</b>. Change it with the <button type="button" class="small" data-nav="today">slider on Today</button> or the one above.</p>
         <form class="row" id="set-form">
           <label class="fld" for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="0.25" value="5"></label>
-          <label class="fld" for="set-age">Your age<input type="number" id="set-age" min="5" max="79" value="20"></label>
+          <label class="fld" for="set-age">Your age<input type="number" id="set-age" min="13" max="79" value="15"></label>
           <button type="submit" class="primary">Save</button>
         </form>
-        <p class="set-note" id="set-note">Count leisure screen time only, not work or school.</p>
+        <p class="set-note" id="set-note">Count free-time screen use only, not schoolwork or work.</p>
         <div class="divider"></div>
         <h2>Wind-down hours</h2>
         <p class="set-note">A calm reminder on the Today page during the hours you'd like to be off your phone, like before bed.</p>
@@ -928,23 +942,23 @@ footer strong{color:var(--ink)}
     'Take a 20-minute walk and leave your phone at home.',
     'Do one chore with no music, video or podcast.',
     'Write down three good things about today, on paper.',
-    'Keep your phone out of reach while you work for an hour.',
+    'Do an hour of homework or work with your phone in another room.',
     'Switch your phone to grayscale for the day.',
     'Delete one app you haven\'t opened this month.',
-    'Have one conversation with your phone out of sight.',
-    'Cook or prepare a meal without checking your phone.',
+    'Have a proper conversation with someone at home, phones out of sight.',
+    'Phone-free dinner tonight. Ask everyone at the table to join in.',
     'Leave your phone behind on one short trip.',
     'Sit for 5 minutes and just look around.',
     'Complete one phone-down timer session.',
     'Move one social app off your home screen.',
     'Charge your phone outside your bedroom tonight.',
-    'Stretch or exercise for 15 minutes with your phone in another room.',
-    'Plan tomorrow on paper instead of your phone.',
+    'Play a sport, go for a run or stretch for 15 minutes, phone in another room.',
+    'Pack your bag and plan tomorrow on paper, not on your phone.',
     'Listen to one full album without touching your phone.',
-    'Wait in a queue or on transport without your phone.',
+    'Travel to school or work without scrolling. Look out of the window instead.',
     'Draw, doodle or write something by hand.',
-    'Tidy one space for 15 minutes with your phone out of sight.',
-    'Ask someone to join you for a phone-free hour.',
+    'Play a board or card game with family or friends.',
+    'Ask a parent, child or friend to join you for a phone-free hour.',
     'Watch the sky or a sunset for a few minutes.',
     'Log out of one social app on your phone.'
   ];
@@ -955,11 +969,11 @@ footer strong{color:var(--ink)}
     ['Set a daily app limit.', 'Screen Time on iPhone and Digital Wellbeing on Android can lock an app after a time you choose.'],
     ['Try grayscale mode.', 'A black-and-white screen is far less tempting to keep scrolling.'],
     ['Replace, don\'t just remove.', 'Pick what you\'ll do instead before you put the phone down: a book, a walk, a call.'],
-    ['Log out of one app on your phone.', 'Having to type a password gives you a moment to decide if you really want to open it.'],
+    ['Protect your sleep.', 'Teens need 8–10 hours a night and adults 7 or more (American Academy of Sleep Medicine). The last hour before bed is the easiest place to start.'],
     ['Make the first hour of your day screen-free.', 'People who start with their phone often find it harder to stop later.'],
     ['Use a real watch.', 'Checking the time is one of the most common reasons people unlock their phone.'],
     ['Leave your phone behind on short trips.', 'A walk to the shop is a good way to get used to not having it.'],
-    ['Keep your phone out of sight while you work.', 'Even a phone lying face down on the desk can pull your attention back to it.'],
+    ['Keep your phone out of sight during homework or work.', 'Even a phone lying face down on the desk can pull your attention back to it.'],
     ['Turn off autoplay.', 'Most video apps let you stop the next video starting on its own. Ending on purpose is easier than stopping mid-scroll.'],
     ['Unfollow accounts that leave you feeling worse.', 'A smaller, kinder feed is easier to put down.'],
     ['Pick a phone-free spot at home.', 'The dinner table or your bed are good places to start.'],
@@ -968,7 +982,7 @@ footer strong{color:var(--ink)}
     ['Have something ready to do instead.', 'A book on the sofa or a guitar by the bed makes the switch easier.'],
     ['Silence group chats you don\'t need right now.', 'You can still read them later, on your terms.'],
     ['Use a lock screen reminder.', 'Set your lock screen to a short question like "Why am I picking this up?"'],
-    ['Watch on a bigger screen, together.', 'Shows on a TV with others tend to end; solo scrolling rarely does.'],
+    ['Watch on a bigger screen, together.', 'A show on the TV with family or friends tends to end; solo scrolling rarely does.'],
     ['Use Do Not Disturb by default.', 'Allow calls from favourites, and let everything else wait.'],
     ['Set a stop time for the evening.', 'Pick a time, like 9:30 pm, after which the phone goes on charge for the night.'],
     ['Take your first break of the day without a screen.', 'Look out of a window, stretch or make a drink instead.'],
@@ -999,7 +1013,7 @@ footer strong{color:var(--ink)}
     [100, 'Four full days and nights. Time you chose to spend on your life.'],
     [250, 'More than ten full days. You didn\'t lose screen time. You gained your time back.']
   ];
-  const REWARD_SUGS = ['Movie night', 'Gaming session', 'Favourite meal', 'Going out', 'Something I planned to buy', 'Free afternoon', 'Time with friends'];
+  const REWARD_SUGS = ['Gaming session', 'Time with friends', 'Movie night', 'Favourite takeaway', 'A lie-in', 'Something I saved up for', 'Free afternoon'];
   const PAGES = ['home', 'today', 'progress', 'rewards', 'you'];
 
   // ---------- dates ----------
@@ -1021,7 +1035,7 @@ footer strong{color:var(--ink)}
 
   // ---------- state ----------
   const DEFAULTS = () => ({
-    settings: { goal: 180, baseline: 300, age: 20, windOn: false, windStart: '22:00', windEnd: '07:00' },
+    settings: { goal: 180, baseline: 300, age: 15, windOn: false, windStart: '22:00', windEnd: '07:00' },
     days: {},
     meta: { milestones: [], rewards: [], streakMs: [] }
   });
@@ -1047,7 +1061,7 @@ footer strong{color:var(--ink)}
     const st = out.settings, hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
     if (!num(st.goal, 30, 720)) st.goal = d.settings.goal; else st.goal = Math.round(st.goal);
     if (!num(st.baseline, 30, 720)) st.baseline = d.settings.baseline; else st.baseline = Math.round(st.baseline);
-    if (!num(st.age, 5, 79)) st.age = d.settings.age; else st.age = Math.round(st.age);
+    if (!num(st.age, 13, 79)) st.age = d.settings.age; else st.age = Math.round(st.age);
     st.windOn = st.windOn === true; st.ageSet = st.ageSet === true;
     if (!hhmm.test(st.windStart)) st.windStart = d.settings.windStart;
     if (!hhmm.test(st.windEnd)) st.windEnd = d.settings.windEnd;
@@ -1471,7 +1485,7 @@ footer strong{color:var(--ink)}
   }
 
   // ---------- render: home ----------
-  const lifeLeft = () => 80 - clamp(Math.round(S.settings.age), 5, 79);
+  const lifeLeft = () => 80 - clamp(Math.round(S.settings.age), 13, 79);
   const yearsAt = m => lifeLeft() * (m / 60) / 16; // share of 16 waking hours, to age 80
   function renderHome(){
     const b = S.settings.baseline, g = S.settings.goal;
@@ -1829,7 +1843,7 @@ footer strong{color:var(--ink)}
     life.addEventListener('click', e => show(e.target));
   })();
   function lifeCounts(){
-    const age = clamp(Math.round(S.settings.age), 5, 79), left = 80 - age;
+    const age = clamp(Math.round(S.settings.age), 13, 79), left = 80 - age;
     const onY = yearsAt(S.settings.goal), wonY = Math.max(0, yearsAt(S.settings.baseline) - onY);
     return { age, left, onY, wonY, onD: Math.round(onY), wonD: Math.round(wonY) };
   }
@@ -1850,12 +1864,12 @@ footer strong{color:var(--ink)}
     const perYearDays = Math.max(0, S.settings.baseline - S.settings.goal) * 365 / (16 * 60);
     $('life-days').textContent = Math.round(perYearDays) + (Math.round(perYearDays) === 1 ? ' day' : ' days');
     $('life-goal-o').textContent = hm(S.settings.goal);
-    $('life-age-o').textContent = clamp(Math.round(S.settings.age), 5, 79);
-    const ageSet = !!S.settings.ageSet || S.settings.age !== 20; // older saves set age without the flag
+    $('life-age-o').textContent = clamp(Math.round(S.settings.age), 13, 79);
+    const ageSet = !!S.settings.ageSet || S.settings.age !== 15; // older saves set age without the flag
     $('age-box').classList.toggle('set', ageSet);
     $('age-hint').textContent = ageSet
       ? 'Your age. You can change it any time.'
-      : 'This is an example based on age 20. Move the slider to make it yours.';
+      : 'This is an example based on age 15. Move the slider to make it yours.';
     $('lk-lived').textContent = c.age; $('lk-left').textContent = c.left;
     $('lk-screen').textContent = c.onY.toFixed(1); $('lk-won').textContent = c.wonY.toFixed(1);
     $('life-base').textContent = hm(S.settings.baseline);
@@ -1931,19 +1945,19 @@ footer strong{color:var(--ink)}
     el.addEventListener('change', () => { persistSettings(); if (field === 'goal' && logged(todayKey)) persistDay(todayKey); });
   }
   bindSlider($('goal-range'), 'goal'); bindSlider($('l-goal'), 'goal'); bindSlider($('life-goal'), 'goal'); bindSlider($('l-now'), 'baseline');
-  $('life-age').addEventListener('input', () => { S.settings.age = clamp(parseInt($('life-age').value, 10) || 20, 5, 79); S.settings.ageSet = true; syncSettingInputs(); render(); });
+  $('life-age').addEventListener('input', () => { S.settings.age = clamp(parseInt($('life-age').value, 10) || 15, 13, 79); S.settings.ageSet = true; syncSettingInputs(); render(); });
   $('life-age').addEventListener('change', () => { persistSettings(); toast('Saved. Age ' + S.settings.age + '.'); });
 
   $('set-form').addEventListener('submit', e => {
     e.preventDefault();
     const b = parseFloat($('set-base').value), a = parseInt($('set-age').value, 10);
-    if (!(b >= 0.5 && b <= 12) || !(a >= 5 && a <= 79)){
-      $('set-note').textContent = 'Enter a starting point between 0.5 and 12 hours, and an age from 5 to 79.';
+    if (!(b >= 0.5 && b <= 12) || !(a >= 13 && a <= 79)){
+      $('set-note').textContent = 'Enter a starting point between 0.5 and 12 hours, and an age from 13 to 79.';
       return;
     }
     S.settings = { ...S.settings, baseline: Math.round(b * 60), age: a, ageSet: true };
     persistSettings(); syncSettingInputs(); render();
-    $('set-note').textContent = 'Count leisure screen time only, not work or school.';
+    $('set-note').textContent = 'Count free-time screen use only, not schoolwork or work.';
     toast('Saved.');
   });
   $('wd-form').addEventListener('submit', e => {
