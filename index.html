@@ -237,6 +237,12 @@ header.top{display:flex;justify-content:space-between;align-items:center;gap:12p
 .steppers{display:flex;gap:6px}
 .steppers button{padding:9px 10px;font-size:14px}
 .status{font-size:15px;color:var(--muted);min-height:1.4em}
+.shot{display:grid;gap:6px;border:1px dashed var(--rule);border-radius:12px;padding:10px 12px}
+.shot-btn{justify-self:start}
+.shot-status{font-size:13px;color:var(--muted)}
+.shot-status.good{color:var(--accent);font-weight:700}
+.shot-status.bad{color:var(--ink)}
+.fld input.found{border-color:var(--accent);background:var(--accent-soft);transition:background 1.2s,border-color 1.2s}
 .status.good{color:var(--accent);font-weight:700} .status.soft{color:var(--ink)}
 .insight-line{font:800 20px/1.3 var(--display)}
 .divider{border-top:1px solid var(--rule)}
@@ -586,14 +592,19 @@ footer strong{color:var(--ink)}
               <p class="label" style="margin-bottom:6px">Which day?</p>
               <div class="days" id="days" role="group" aria-label="Choose a day to log"></div>
             </div>
-            <form id="log-form" autocomplete="off" style="display:grid;gap:12px">
+            <form id="log-form" autocomplete="off" style="display:grid;gap:12px" novalidate>
               <div class="row">
                 <label class="fld" for="in-h">Hours<input type="number" id="in-h" min="0" max="24" inputmode="numeric" value="0"></label>
-                <label class="fld" for="in-m">Minutes<input type="number" id="in-m" min="0" max="59" step="5" inputmode="numeric" value="0"></label>
+                <label class="fld" for="in-m">Minutes<input type="number" id="in-m" min="0" max="59" step="1" inputmode="numeric" value="0"></label>
                 <div class="steppers">
                   <button type="button" id="minus" aria-label="Subtract 15 minutes">−15m</button>
                   <button type="button" id="plus" aria-label="Add 15 minutes">+15m</button>
                 </div>
+              </div>
+              <div class="shot" id="shot-box">
+                <button type="button" id="shot-btn" class="shot-btn">Read from a screenshot</button>
+                <input type="file" id="shot-file" accept="image/*" hidden>
+                <p class="shot-status" id="shot-status" role="status">Take a screenshot of Screen Time (iPhone) or Digital Wellbeing (Android) and Look Up fills in the total. It's read on your device; the image never leaves it.</p>
               </div>
               <label class="fld" for="in-note">What did you do instead? (optional)<input type="text" class="note" id="in-note" maxlength="80" placeholder="e.g. went for a run, read, saw friends"></label>
               <div class="row">
@@ -709,11 +720,11 @@ footer strong{color:var(--ink)}
         <div class="cal num" id="cal" role="group" aria-labelledby="cal-h"></div>
         <p class="cal-sum" id="cal-sum"></p>
         <p class="cal-legend"><span>Part of a streak</span><span class="rest">Rest day (streak kept)</span></p>
-        <form class="editor" id="ed" hidden autocomplete="off">
+        <form class="editor" id="ed" hidden autocomplete="off" novalidate>
           <h3 id="ed-h"></h3>
           <div class="row">
             <label class="fld" for="ed-h-in">Hours<input type="number" id="ed-h-in" min="0" max="24" inputmode="numeric"></label>
-            <label class="fld" for="ed-m-in">Minutes<input type="number" id="ed-m-in" min="0" max="59" step="5" inputmode="numeric"></label>
+            <label class="fld" for="ed-m-in">Minutes<input type="number" id="ed-m-in" min="0" max="59" step="1" inputmode="numeric"></label>
           </div>
           <label class="fld" for="ed-note">What did you do instead?<input type="text" class="note" id="ed-note" maxlength="80" placeholder="optional"></label>
           <p class="sub-muted" id="ed-target"></p>
@@ -767,12 +778,12 @@ footer strong{color:var(--ink)}
           <h2 id="rw-h">Your Rewards</h2>
           <button type="button" class="primary" id="rw-add">Add a reward</button>
         </div>
-        <form class="rw-form" id="rw-form" hidden autocomplete="off">
+        <form class="rw-form" id="rw-form" hidden autocomplete="off" novalidate>
           <p class="label" id="rw-form-h">New reward</p>
           <div class="sugs" id="rw-sugs" aria-label="Suggestions"></div>
           <div class="row">
             <label class="fld" for="rw-title">Reward<input type="text" id="rw-title" maxlength="40" placeholder="e.g. Movie night"></label>
-            <label class="fld" for="rw-hours">Hours reclaimed<input type="number" id="rw-hours" min="0.5" max="500" step="0.5" value="3"></label>
+            <label class="fld" for="rw-hours">Hours reclaimed<input type="number" id="rw-hours" min="0.5" max="500" step="any" value="3"></label>
             <label class="fld" for="rw-period">When<select id="rw-period"><option value="week">this week (resets every Monday)</option><option value="total">in total, starting now</option></select></label>
           </div>
           <p class="orange" id="rw-err" role="status"></p>
@@ -836,8 +847,8 @@ footer strong{color:var(--ink)}
       <section class="card c7" aria-labelledby="set-h">
         <h2 id="set-h">Your targets</h2>
         <p class="set-note">Daily target: <b id="set-goal-t">3h</b>. Change it with the <button type="button" class="small" data-nav="today">slider on Today</button> or the one above.</p>
-        <form class="row" id="set-form">
-          <label class="fld" for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="0.25" value="5"></label>
+        <form class="row" id="set-form" novalidate>
+          <label class="fld" for="set-base">Before Look Up (hours a day)<input type="number" id="set-base" min="0.5" max="12" step="any" value="5"></label>
           <label class="fld" for="set-age">Your age<input type="number" id="set-age" min="13" max="79" value="15"></label>
           <button type="submit" class="primary">Save</button>
         </form>
@@ -845,7 +856,7 @@ footer strong{color:var(--ink)}
         <div class="divider"></div>
         <h2>Wind-down hours</h2>
         <p class="set-note">A calm reminder on the Today page during the hours you'd like to be off your phone, like before bed.</p>
-        <form class="row" id="wd-form">
+        <form class="row" id="wd-form" novalidate>
           <label class="check" for="wd-on"><input type="checkbox" id="wd-on"> Remind me</label>
           <label class="fld" for="wd-start">From<input type="time" id="wd-start" value="22:00"></label>
           <label class="fld" for="wd-end">Until<input type="time" id="wd-end" value="07:00"></label>
@@ -1909,6 +1920,73 @@ footer strong{color:var(--ink)}
     $('save').disabled = same; $('save').textContent = same ? 'Saved' : 'Save';
   }
   function markDirty(){ logDirty = true; updateSaveBtn(); renderRing(); }
+
+  // ---------- read the total from a Screen Time / Digital Wellbeing screenshot ----------
+  // Everything happens in the browser with Tesseract.js. The engine and English data download once
+  // from a public CDN; the screenshot itself is never uploaded.
+  const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  let ocrWorker = null, ocrLoading = null;
+  function loadTesseract(){
+    if (window.Tesseract) return Promise.resolve();
+    if (ocrLoading) return ocrLoading;
+    ocrLoading = new Promise((res, rej) => {
+      const sc = document.createElement('script');
+      sc.src = TESSERACT_URL; sc.async = true;
+      sc.onload = res; sc.onerror = () => { ocrLoading = null; rej(new Error('load')); };
+      document.head.appendChild(sc);
+    });
+    return ocrLoading;
+  }
+  // Find every duration in the text ("4h 23m", "4 hr 23 min", "3 hrs, 12 mins", "45m", "263 min")
+  // and use the largest one that fits in a day: the daily total is always at least as big as any one app.
+  function parseScreenTime(text){
+    const t = String(text).replace(/[|]/g, ' ').replace(/(\d)\s*[oO](?=\s*[hm])/g, '$10'); // common OCR slips: | and O for 0
+    const re = /(\d{1,2})\s*(?:hours|hour|hrs|hr|h)(?![a-z])\.?,?\s*(?:(\d{1,2})\s*(?:minutes|minute|mins|min|m)(?![a-z]))?|(\d{1,4})\s*(?:minutes|minute|mins|min|m)(?![a-z])/gi;
+    const found = [];
+    let m;
+    while ((m = re.exec(t))){
+      const mins = m[1] != null ? parseInt(m[1], 10) * 60 + (m[2] ? parseInt(m[2], 10) : 0) : parseInt(m[3], 10);
+      if (mins > 0 && mins <= 1440 && (!m[2] || parseInt(m[2], 10) < 60)) found.push({ mins, at: m.index });
+    }
+    if (!found.length) return null;
+    // a week view shows "Daily Average" with the number right after it; apps' weekly totals can be bigger
+    const avg = t.search(/daily\s*average/i);
+    if (avg >= 0){
+      const next = found.find(f => f.at > avg);
+      if (next) return { mins: next.mins, average: true };
+    }
+    return { mins: Math.max(...found.map(f => f.mins)), average: false };
+  }
+  function shotMsg(text, kind){ const el = $('shot-status'); el.textContent = text; el.className = 'shot-status' + (kind ? ' ' + kind : ''); }
+  async function readShot(file){
+    if (!file || !/^image\//.test(file.type)){ shotMsg('That isn\'t an image. Choose a screenshot.', 'bad'); return; }
+    const btn = $('shot-btn'); btn.disabled = true;
+    shotMsg('Getting the text reader ready… (only slow the first time)');
+    try {
+      await loadTesseract();
+      if (!ocrWorker){
+        ocrWorker = await window.Tesseract.createWorker('eng', 1, {
+          logger: msg => { if (msg.status === 'recognizing text') shotMsg('Reading your screenshot… ' + Math.round((msg.progress || 0) * 100) + '%'); }
+        });
+      }
+      shotMsg('Reading your screenshot…');
+      const { data } = await ocrWorker.recognize(file);
+      const res = parseScreenTime(data && data.text), mins = res && res.mins;
+      if (mins == null){ shotMsg('Couldn\'t find a total in that one. Type it in instead, or try a clearer screenshot of the main Screen Time page.', 'bad'); return; }
+      writeMins(mins); markDirty();
+      ['in-h', 'in-m'].forEach(id => { const el = $(id); el.classList.add('found'); setTimeout(() => el.classList.remove('found'), 2500); });
+      shotMsg(res.average
+        ? 'That looks like a week view, so this is your daily average: ' + hm(mins) + '. For one day, screenshot the day view instead. Check it, then press Save.'
+        : 'Found ' + hm(mins) + '. Check it matches your screenshot, then press Save.', 'good');
+    } catch(e){
+      shotMsg('Couldn\'t read screenshots here. Type the total in instead.', 'bad');
+    } finally { btn.disabled = false; }
+  }
+  $('shot-btn').addEventListener('click', () => $('shot-file').click());
+  $('shot-file').addEventListener('change', () => { const f = $('shot-file').files[0]; $('shot-file').value = ''; readShot(f); });
+  // the claude.ai version blocks the text reader's downloads, so offer it only on the website
+  if (window.claude) $('shot-box').hidden = true;
+  window.__lookupParse = parseScreenTime; // for testing
   ['in-h','in-m','in-note'].forEach(id => $(id).addEventListener('input', markDirty));
   ['in-h','in-m'].forEach(id => $(id).addEventListener('change', () => writeMins(readMins())));
   $('plus').addEventListener('click', () => { writeMins(readMins() + 15); markDirty(); });
